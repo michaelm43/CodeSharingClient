@@ -1,0 +1,10 @@
+.root{
+	
+}
+.button{
+	-fx-background-radius: 6;
+}
+
+.text-field{
+	-fx-background-radius: 10;
+}
