@@ -11,9 +11,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -40,6 +44,9 @@ public class Main extends Application{
 	
 	@FXML TextArea txtEditor;
 	@FXML TextField txtEmail; 
+	@FXML PasswordField txtPassword;
+	@FXML PasswordField txtVerifyPassword;
+	@FXML Label lblErrorMessage;
 	
 	public static void main(String[] args) {
 		launch(args);	
@@ -72,8 +79,10 @@ public class Main extends Application{
 	//@checkPassword
 	public void loginAction(ActionEvent event) throws IOException {
 		//TODO check fields and user exist in database
-		if(!isValidEmail(txtEmail.getText()))
-			System.out.println("the email is not valid");
+		if(!isValidEmail(txtEmail.getText()) || !isValidPassword(txtPassword.getText())) {
+			lblErrorMessage.setText("Invalid email or password");
+			lblErrorMessage.setVisible(true);
+		}
 		else {
 			newFileScene = new Scene(FXMLLoader.load(getClass().getResource("NewFileLayout.fxml")),300,150);
 			window = (Stage)((Node)event.getSource()).getScene().getWindow();
@@ -82,23 +91,7 @@ public class Main extends Application{
 		}
 	}
 	
-	/*
-	 * check that the email is from the pattern: email@gmail.com
-	 */
-	public static boolean isValidEmail(String email) 
-    { 
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+ 
-                            "[a-zA-Z0-9_+&*-]+)*@" + 
-                            "(?:[a-zA-Z0-9-]+\\.)+[a-z" + 
-                            "A-Z]{2,7}$"; 
-                              
-        Pattern pat = Pattern.compile(emailRegex); 
-        if (email == null) 
-            return false; 
-        return pat.matcher(email).matches(); 
-    } 
-
-
+	
 	/* 
 	 *  Login -> Register
 	 *  user dont have an account. 
@@ -111,6 +104,7 @@ public class Main extends Application{
 		Stage stage = new Stage();
 		stage.setScene(registerScene);
 		stage.initModality(Modality.APPLICATION_MODAL);
+		stage.setResizable(false);
 		stage.show();
 	}
 	
@@ -124,8 +118,18 @@ public class Main extends Application{
 	 */
 	@FXML
 	public void loginPageAction(ActionEvent event) throws IOException {
-		window = (Stage)((Node)event.getSource()).getScene().getWindow();
-		window.close();
+		if(!isValidEmail(txtEmail.getText()) || !isValidPassword(txtPassword.getText())) {
+			lblErrorMessage.setText("Invalid email or password");
+			lblErrorMessage.setVisible(true);
+		}
+		else if(!isMatchedPassword(txtPassword.getText(), txtVerifyPassword.getText())) {
+			lblErrorMessage.setText("confirmation password not match");
+			lblErrorMessage.setVisible(true);
+		}
+		else {
+			window = (Stage)((Node)event.getSource()).getScene().getWindow();
+			window.close();
+		}
 	}
 
 	/*
@@ -184,5 +188,47 @@ public class Main extends Application{
 		if(isExit)
 			editor.close();
 	}
-	/////////////
+	
+	
+	
+	//--------------------------------------- Validation methods -------------------------------------
+	
+	/* 
+	 * check that the email is from the pattern: email@gmail.com
+	 */
+	public static boolean isValidEmail(String email) 
+    { 
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+ 
+                            "[a-zA-Z0-9_+&*-]+)*@" + 
+                            "(?:[a-zA-Z0-9-]+\\.)+[a-z" + 
+                            "A-Z]{2,7}$"; 
+                              
+        Pattern pat = Pattern.compile(emailRegex); 
+        if (email == null) 
+            return false; 
+        return pat.matcher(email).matches(); 
+    } 
+	
+	
+	/*
+	 * check that the password is from the pattern:
+	 * 		 Minimum eight characters, at least one letter and one number
+	 */
+	public static boolean isValidPassword(String psw) {
+		String pswRegex = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,12}$";
+		Pattern pat = Pattern.compile(pswRegex);
+		if(psw == null)
+			return false;
+		return pat.matcher(psw).matches();
+	}
+
+
+	/*
+	 * check that the password and the verification password match
+	 */
+	public static boolean isMatchedPassword(String psw, String varifyPsw) {
+		return psw.equals(varifyPsw);
+	}
+
+	
 }
