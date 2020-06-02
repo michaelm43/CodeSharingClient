@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane stylesheets="@FormLayout.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Main">
+<BorderPane stylesheets="@FormLayout.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Main">
    <bottom>
       <Button id="btnLogin" fx:id="btnLogin" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" onAction="#loginAction" text="Login" BorderPane.alignment="CENTER_RIGHT">
          <BorderPane.margin>
@@ -45,4 +50,7 @@
          </BorderPane.margin>
       </VBox>
    </center>
+   <top>
+      <Label fx:id="lblErrorMessage" text="Label" textAlignment="CENTER" textFill="RED" visible="false" BorderPane.alignment="CENTER" />
+   </top>
 </BorderPane>
