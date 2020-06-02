@@ -192,6 +192,7 @@ public class Main extends Application{
 	
 	
 	//--------------------------------------- Validation methods -------------------------------------
+	//check comit
 	
 	/* 
 	 * check that the email is from the pattern: email@gmail.com
