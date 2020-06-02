@@ -184,5 +184,5 @@ public class Main extends Application{
 		if(isExit)
 			editor.close();
 	}
-	
+	/////////////
 }
