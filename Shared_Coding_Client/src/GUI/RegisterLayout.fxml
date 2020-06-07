@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane stylesheets="@FormLayout.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Main">
+<BorderPane stylesheets="@FormLayout.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <center>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -31,7 +31,7 @@
    <bottom>
       <HBox BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#loginPageAction" text="cancel" />
+            <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#exitAction" text="cancel" />
             <Region HBox.hgrow="ALWAYS">
                <cursor>
                   <Cursor fx:constant="H_RESIZE" />
