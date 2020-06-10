@@ -51,6 +51,6 @@
       </VBox>
    </center>
    <top>
-      <Label fx:id="lblErrorMessage" text="Label" textAlignment="CENTER" textFill="RED" visible="false" BorderPane.alignment="CENTER" />
+      <Label fx:id="lblErrorMessage" text="Label" textAlignment="JUSTIFY" textFill="RED" visible="false" wrapText="true" BorderPane.alignment="CENTER" />
    </top>
 </BorderPane>

@@ -1,8 +1,11 @@
 package GUI;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
 import java.util.regex.Pattern;
 
+import HttpRequests.UserRequests;
+import Logic.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -71,7 +74,12 @@ public class RegisterController {
 			lblErrorMessage.setVisible(true);
 		}
 		else {
-			registerStage.close();
+			if(new UserRequests().registerUser(new User(txtEmail.getText(),txtPassword.getText())))
+				registerStage.close();
+			else {
+				lblErrorMessage.setText("User already exist");
+				lblErrorMessage.setVisible(true);
+			}
 		}
 	}
 	

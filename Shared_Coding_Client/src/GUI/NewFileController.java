@@ -2,16 +2,19 @@ package GUI;
 
 import java.io.IOException;
 
+import HttpRequests.ElementRequest;
 import Logic.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class NewFileController {
 
 	@FXML TextField txtFileName;
+	@FXML Label lblErrorMessage;
 	
 	private User user;
 	private Project proj;
@@ -48,12 +51,22 @@ public class NewFileController {
 	 */
 	@FXML
 	public void NewFileAction() throws IOException {
-		if(!txtFileName.getText().isEmpty()) {
-			newFileStage.close();
+		if(txtFileName.getText().isEmpty()) {
+			lblErrorMessage.setText("File name can't be empty");
+			lblErrorMessage.setVisible(true);
+		}
+		else {
 			proj = new Project(txtFileName.getText(), user.getEmail());
-			user.addProject(txtFileName.getText().concat("-").concat(user.getEmail()));
-			EditorController editorController = new EditorController(user, proj);
-			editorController.showStage();
+			if(new ElementRequest().openNewFile(user,proj)) {
+				newFileStage.close();
+				user.addProject(txtFileName.getText().concat("-").concat(user.getEmail()));
+				EditorController editorController = new EditorController(user, proj);
+				editorController.showStage();
+			}
+			else {
+				lblErrorMessage.setText("File name already exist");
+				lblErrorMessage.setVisible(true);
+			}
 		}
 	}
 	

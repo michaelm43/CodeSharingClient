@@ -8,15 +8,16 @@ public class User {
 
 	private String email;
 	private String password;
-	private List<String> projectList;
+	private List<String> projects;
 	
 	
-	public User(String email) {
+	public User(String email,String password) {
 		super();
-		if(isValidEmail(email))
+		if(isValidEmail(email)&&isValidPassword(password)) {
 			this.email = email;
-		//this.password = password;
-		projectList = new LinkedList<String>();
+			this.password = password;
+		}
+		projects = new LinkedList<String>();
 	}
 
 
@@ -45,16 +46,21 @@ public class User {
 	}
 
 	public List<String> getProjectList() {
-		return projectList;
+		return projects;
 	}
 
 	
 	public void addProject(String proj) {
-		projectList.add(proj);
+		projects.add(proj);
 	}
 
 	public boolean removeProject(String proj) {
-		return projectList.remove(proj);
+		return projects.remove(proj);
+	}
+	
+	
+	public String toString() {
+		return "[u-" + email + ",p-" + password +"]";
 	}
 	
 	//check comit

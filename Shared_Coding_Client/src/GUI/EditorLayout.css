@@ -1,8 +1,10 @@
-.text-area{
+.text-field {
 	-fx-control-inner-background:#383838; 
 	-fx-font-family: Consolas; 
 	-fx-highlight-fill: #00ff00; 
 	-fx-highlight-text-fill: #000000; 
 	-fx-text-fill: #abe310; 
 	-fx-font-size: 150%;
+	-fx-text-box-border: #383838;
+	-fx-background-radius: 0;
 }

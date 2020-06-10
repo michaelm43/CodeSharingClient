@@ -2,6 +2,7 @@ package GUI;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import HttpRequests.UserRequests;
 import Logic.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,14 +54,20 @@ public class LoginController{
 	 */
 	@FXML
 	public void loginAction() throws IOException {
-		//TODO check fields and user exist in database
 		if(!isValidEmail(txtEmail.getText()) || !isValidPassword(txtPassword.getText())) {
 			lblErrorMessage.setText("Invalid email or password");
 			lblErrorMessage.setVisible(true);
+				
 		}
 		else {
-			user = new User(txtEmail.getText());
-			NewFileController fileNameController = new NewFileController(this.loginStage, user);
+			user = new User(txtEmail.getText(),txtPassword.getText());
+			NewFileController fileNameController;
+			if(new UserRequests().loginUser(user))
+				fileNameController = new NewFileController(this.loginStage, user);
+			else {
+				lblErrorMessage.setText("The user isn't exist");
+				lblErrorMessage.setVisible(true);
+			}
 		}
 	}
 	

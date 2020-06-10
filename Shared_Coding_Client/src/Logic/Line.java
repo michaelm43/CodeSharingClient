@@ -1,6 +1,6 @@
 package Logic;
 
-public class Lines {
+public class Line {
 
 	private String line;
 	private Integer lineNumber;
@@ -9,7 +9,7 @@ public class Lines {
 	private Integer start;
 	private Integer end;
 	
-	public Lines(String line, Integer lineNumber) {
+	public Line(String line, Integer lineNumber) {
 		super();
 		this.line = line;
 		this.lineNumber = lineNumber;

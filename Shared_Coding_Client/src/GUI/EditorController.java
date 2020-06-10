@@ -3,12 +3,16 @@ package GUI;
 import java.io.IOException;
 
 import Logic.*;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.TextArea;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -23,17 +27,16 @@ public class EditorController {
 	private final Stage editorStage;
 	
 	private User user; 
-	private Project proj;
-	private File file;
+	private ProjectWithFields proj;
 	
-	@FXML private TextArea txtEditor;
+	//@FXML private TextArea txtEditor;
+	@FXML private VBox vBoxEditor;
 	
 	
 	public EditorController(User user, Project proj) {
 		this.editorStage = new Stage();
 		this.user = user;
-		this.proj = proj;
-		System.out.println(new File("check","michael").toString());
+		this.proj = new ProjectWithFields(proj);
 		
 		// Load the FXML file
         try {    		     	
@@ -49,7 +52,9 @@ public class EditorController {
 			editorStage.initModality(Modality.APPLICATION_MODAL);
 
             // Setup the window/stage
-            editorStage.setTitle(proj.getName().concat("_").concat(proj.getCreator()));
+            editorStage.setTitle(this.proj.getProject().getName().concat("_").concat(this.proj.getProject().getCreator()));
+            vBoxEditor.setBackground(new Background(new BackgroundFill(Color.valueOf("#383838"), CornerRadii.EMPTY, Insets.EMPTY)));
+            
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,7 +67,6 @@ public class EditorController {
 			e.consume();
 			popUpMessage(EXIT_TITLE, EXIT_MESSAGE);
 		});
-		
 	}
 	
 	
@@ -72,8 +76,7 @@ public class EditorController {
 	
 	
 	public void setText() {
-		txtEditor.setText(proj.toString());
-		txtEditor.positionCaret(5);
+        this.proj.putInGui(vBoxEditor);
 	}
 	
 	/*
@@ -93,10 +96,5 @@ public class EditorController {
 		Boolean isExit = ConfirmBox.display(title,msg);
 		if(isExit)
 			editorStage.close();
-	}
-	
-	@FXML
-	public void editText(MouseEvent event) {
-		System.out.println((int)txtEditor.getCaretPosition());
 	}
 }

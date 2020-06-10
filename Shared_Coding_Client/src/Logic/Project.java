@@ -1,6 +1,6 @@
 package Logic;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -8,55 +8,97 @@ import java.util.ListIterator;
 public class Project {
 	private String name;
 	private String creator;
-	private List<Lines> text;
-	private Integer lineNumber;
+	private int numberOfLines;
+	private List<String> users;
+	private List<String> activeUsers;
+	private List<Line> linesOfCode;
 	
-	public static List<Lines> initCode= new LinkedList<>(List.of(	
-			new Lines("public class", 1), 
-			new Lines("{",2),
-			new Lines("public static void main()",3),
-			new Lines("{",4),
-			new Lines("}",5),
-			new Lines("}",6))); 
+	public static List<Line> initCode= new LinkedList<>(List.of(	
+			new Line("public class", 1), 
+			new Line("{",2),
+			new Line("public static void main()",3),
+			new Line("{",4),
+			new Line("}",5),
+			new Line("}",6)
+			)); 
 		
 	
 	public Project(String name, String creator) {
 		super();
 		this.name = name;
 		this.creator = creator;
-		this.text = initCode;
-		this.lineNumber = initCode.size();
+		
+		this.linesOfCode = new LinkedList<>();
+		this.users = new ArrayList<String>();
+		this.activeUsers = new ArrayList<String>();
+		
+		this.users.add(creator);
+		this.activeUsers.add(creator);
+		
+		this.linesOfCode = initCode;
+		this.numberOfLines = initCode.size();
 	}
 	
-	
+		
 	public String getName() {
 		return name;
 	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
+
 	public String getCreator() {
 		return creator;
 	}
+
 	public void setCreator(String creator) {
 		this.creator = creator;
 	}
-	public List<Lines> getText() {
-		return text;
+
+	public int getNumberOfLines() {
+		return numberOfLines;
 	}
-	public void setText(List<Lines> text) {
-		this.text = text;
+
+	public void setNumberOfLines(int numberOfLines) {
+		this.numberOfLines = numberOfLines;
 	}
-	public Integer getLineNumber() {
-		return lineNumber;
+
+	public List<String> getUsers() {
+		return users;
 	}
-	public void setLineNumber(Integer lineNumber) {
-		this.lineNumber = lineNumber;
+
+	public void setUsers(List<String> users) {
+		this.users = users;
+	}
+
+	public List<String> getActiveUsers() {
+		return activeUsers;
+	}
+
+	public void setActiveUsers(List<String> activeUsers) {
+		this.activeUsers = activeUsers;
+	}
+
+	public List<Line> getLinesOfCode() {
+		return linesOfCode;
+	}
+
+	public void setLinesOfCode(List<Line> linesOfCode) {
+		this.linesOfCode = linesOfCode;
 	}
 	
+	public void addLine(int lineNumber, Line text) {
+		linesOfCode.set(lineNumber, text);
+	}
+	
+	public Line removeLine(int lineNumber) {
+		return linesOfCode.remove(lineNumber);
+	}
+
 	@Override
 	public String toString() {
-		ListIterator<Lines> itr = text.listIterator();
+		ListIterator<Line> itr = linesOfCode.listIterator();
 		String stringText = "";
 		
 		while(itr.hasNext()) {
