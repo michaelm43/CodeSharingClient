@@ -23,8 +23,8 @@ import java.util.Map;*/
 
 public class UserRequests {
 
-//	public static String IP = "10.0.1.26";
-	public static String IP = "192.168.1.229";
+	public static String IP = "10.0.1.26";
+//	public static String IP = "192.168.1.229";
 	public static String PORT = "8089";
 	
 	private String baseUrl = "http://" + IP + ":" + PORT + "/";

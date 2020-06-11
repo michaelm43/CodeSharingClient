@@ -17,27 +17,17 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx.base.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx.controls.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx.fxml.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx.graphics.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx.media.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx.swing.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx.web.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/eclipse/javafx-sdk-11.0.2/lib/javafx-swt.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/gson-2.8.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/json-20200518.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/json-simple-1.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/gson-2.8.6.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/lombok-1.18.8.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/object-mapper-1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/spring-aop-5.1.9.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/spring-beans-5.1.9.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/spring-context-5.1.9.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/spring-core-5.1.9.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/spring-expression-5.1.9.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/jars/Mapper/spring-jcl-5.1.9.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/InMemoryJavaCompiler-1.3.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/shaym/Desktop/InMemoryJavaCompiler-1.3.0-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/jars/gson-2.8.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/jars/json-20200518.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/jars/json-simple-1.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx.base.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx.controls.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx.fxml.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx.graphics.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx.media.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx.swing.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx.web.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/javafx-sdk-11.0.2/lib/javafx-swt.jar"/>
+	<classpathentry kind="lib" path="C:/Users/michael/eclipse-workspace/jars/richtextfx-0.10.5.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

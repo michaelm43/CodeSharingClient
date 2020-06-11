@@ -7,7 +7,6 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@EditorLayout.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <top>
@@ -35,16 +34,16 @@
           </Menu>
             <Menu mnemonicParsing="false">
                <graphic>
-                  <Button mnemonicParsing="false" text="Run" onAction="#onRun"/>
+                  <Button mnemonicParsing="false" onAction="#onRun" text="Run" />
                </graphic>
             </Menu>
         </menus>
       </MenuBar>
    </top>
-   <center>
-      <VBox fx:id="vBoxEditor" prefHeight="200.0" prefWidth="100.0" />
-   </center>
    <bottom>
-      <TextArea fx:id="txtConsole" BorderPane.alignment="CENTER" editable="false" visible="false" />
+      <TextArea fx:id="txtConsole" editable="false" visible="false" BorderPane.alignment="CENTER" />
    </bottom>
+   <center>
+      <TextArea fx:id="txtEditor" onKeyPressed="#keyPressed" onMouseClicked="#MouseClicked" BorderPane.alignment="CENTER" />
+   </center>
 </BorderPane>

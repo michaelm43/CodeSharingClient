@@ -2,17 +2,15 @@ package GUI;
 
 import java.io.IOException;
 
+import javax.swing.text.Position;
+
+
 import Logic.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import Compile.*;
@@ -27,20 +25,27 @@ public class EditorController {
 	private final Stage editorStage;
 
 	private User user;
-	private ProjectWithFields proj;
+	private Project proj;
 
-	// @FXML private TextArea txtEditor;
-	@FXML
-	private VBox vBoxEditor;
+	@FXML 
+	private TextArea txtEditor;
+
 	@FXML
 	private TextArea txtConsole;
 
-	private int flag;
+	@FXML
+	private BorderPane borderPane;
 
+	private int flag;
+	
+	private int caretpos;
+	private int caretLine;
+	
 	public EditorController(User user, Project proj) {
 		this.editorStage = new Stage();
 		this.user = user;
-		this.proj = new ProjectWithFields(proj);
+		this.proj = proj;
+		
 
 		// Load the FXML file
 		try {
@@ -57,15 +62,14 @@ public class EditorController {
 
 			// Setup the window/stage
 			editorStage
-					.setTitle(this.proj.getProject().getName().concat("_").concat(this.proj.getProject().getCreator()));
-			vBoxEditor.setBackground(
-					new Background(new BackgroundFill(Color.valueOf("#383838"), CornerRadii.EMPTY, Insets.EMPTY)));
+					.setTitle(this.proj.getName().concat("_").concat(this.proj.getCreator()));
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		    
 		setText();
+		
 		// txtEditor.setEditable(false);
 
 		editorStage.setOnCloseRequest(e -> {
@@ -84,7 +88,7 @@ public class EditorController {
 	}
 
 	public void setText() {
-		this.proj.putInGui(vBoxEditor);
+		txtEditor.setText(proj.toString());
 	}
 
 	/*
@@ -111,13 +115,13 @@ public class EditorController {
 		try {
 			txtConsole.setText("COMPILATION....");
 			if (flag == 0) {
-				Comp c = new Comp(proj.getProject().toString(), txtConsole);
+				Comp c = new Comp(proj.toString(), txtConsole);
 				Thread t = new Thread(c, "compile");
 				t.start();
 				flag = 1; // NOW ITS TIME TO RUN
 				
 			} else {
-				String path_run = this.proj.getProject().getName();
+				String path_run = this.proj.getName();
 				Process p = Runtime.getRuntime().exec("cmd /c " + "cd .&& javaw " + path_run);
 				Run r = new Run(txtConsole, p);
 				Run1 r1 = new Run1(txtConsole, p);
@@ -135,7 +139,30 @@ public class EditorController {
 			// System.out.println(e);
 		}
 	}
+	
+	@FXML 
+	public void MouseClicked(){
+		this.caretLine = checkCaretLine();
+		try {
+			
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
 
+	public int checkCaretLine() {
+		int maxLine = proj.getNumberOfLines();
+		int caretPos = txtEditor.getCaretPosition();
+		int tempPos = maxLine/2;
+		 
+		
+		return this.caretLine;
+	}
+	
+	
+	
+	
 //	@FXML
 //	public void onCompile() throws IOException {
 //		try {
