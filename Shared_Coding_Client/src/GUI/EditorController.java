@@ -4,12 +4,16 @@ import java.io.IOException;
 
 import javax.swing.text.Position;
 
+import org.fxmisc.richtext.CodeArea;
 
 import Logic.*;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -21,13 +25,15 @@ public class EditorController {
 	public static String EXIT_MESSAGE = "Are you sure you want to exit the program?";
 	public static String LOGOUT_TITLE = "Logout Message";
 	public static String LOGOUT_MESSAGE = "Are you sure you want to logout?";
+	
+	
 
 	private final Stage editorStage;
 
 	private User user;
 	private Project proj;
 
-	@FXML 
+	//@FXML 
 	private TextArea txtEditor;
 
 	@FXML
@@ -41,10 +47,13 @@ public class EditorController {
 	private int caretpos;
 	private int caretLine;
 	
+	private CodeArea codeArea;
+	
 	public EditorController(User user, Project proj) {
 		this.editorStage = new Stage();
 		this.user = user;
 		this.proj = proj;
+		this.codeArea = new CodeArea();
 		
 
 		// Load the FXML file
@@ -68,7 +77,9 @@ public class EditorController {
 			e.printStackTrace();
 		}
 		    
-		setText();
+		
+		borderPane.setCenter(codeArea);
+		//setText();
 		
 		// txtEditor.setEditable(false);
 
@@ -109,6 +120,11 @@ public class EditorController {
 			editorStage.close();
 	}
 
+	@FXML 
+	public void addUser() throws IOException{
+		
+	}
+	
 	@FXML
 	public void onRun() throws IOException {
 		txtConsole.setVisible(true);
@@ -140,9 +156,10 @@ public class EditorController {
 		}
 	}
 	
+	/*
 	@FXML 
 	public void MouseClicked(){
-		this.caretLine = checkCaretLine();
+		checkCaretLine();
 		try {
 			
 		}
@@ -150,14 +167,26 @@ public class EditorController {
 			// TODO: handle exception
 		}
 	}
+	*/
 
-	public int checkCaretLine() {
+	public void checkCaretLine() {
 		int maxLine = proj.getNumberOfLines();
 		int caretPos = txtEditor.getCaretPosition();
 		int tempPos = maxLine/2;
+		int line = 0;
 		 
+		txtEditor.positionCaret(0);
+		//while(tempPos>=1) {
+			//for(int i = 0; i<3;i++) {
+				
+		//txtEditor.
+		//fireEvent(new KeyEvent(null, txtEditor,KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, false, false, false, false));
+		//System.out.println(txtEditor.getCaretPosition());
+			//}
+		//}
 		
-		return this.caretLine;
+		
+//		return this.caretLine;
 	}
 	
 	
