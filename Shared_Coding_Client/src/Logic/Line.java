@@ -37,6 +37,11 @@ public class Line {
 
 	@Override
 	public String toString() {
+		return line +"\n"; 
+	}
+	
+	public String toStringWithNumbers() {
 		return lineNumber + "\t" + line +"\n"; 
 	}
+
 }

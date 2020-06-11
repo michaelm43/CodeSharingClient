@@ -35,7 +35,7 @@
           </Menu>
             <Menu mnemonicParsing="false">
                <graphic>
-                  <Button mnemonicParsing="false" text="Run" />
+                  <Button mnemonicParsing="false" text="Run" onAction="#onRun"/>
                </graphic>
             </Menu>
         </menus>
@@ -45,6 +45,6 @@
       <VBox fx:id="vBoxEditor" prefHeight="200.0" prefWidth="100.0" />
    </center>
    <bottom>
-      <TextArea fx:id="txtConsole" BorderPane.alignment="CENTER" />
+      <TextArea fx:id="txtConsole" BorderPane.alignment="CENTER" editable="false" visible="false" />
    </bottom>
 </BorderPane>

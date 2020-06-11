@@ -23,10 +23,11 @@ public class File {
 	 * init decode
 	 */
 	private void initDecodeText() {
-		this.text = text.concat("public class\n")
+		this.text = text.concat("public class Application\n")
 			.concat("{\n")
-			.concat("public static void main()\n")
+			.concat("public static void main(String[] args)\n")
 			.concat("{\n")
+			.concat("System.out.println(100);\n")
 			.concat("}\n")
 			.concat("}\n");
 		//have to encode in the end

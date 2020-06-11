@@ -14,12 +14,13 @@ public class Project {
 	private List<Line> linesOfCode;
 	
 	public static List<Line> initCode= new LinkedList<>(List.of(	
-			new Line("public class", 1), 
+			new Line("public class Application", 1), 
 			new Line("{",2),
-			new Line("public static void main()",3),
+			new Line("public static void main(String[] args)",3),
 			new Line("{",4),
-			new Line("}",5),
-			new Line("}",6)
+			new Line("System.out.println(100);", 5),
+			new Line("}",6),
+			new Line("}",7)
 			)); 
 		
 	
