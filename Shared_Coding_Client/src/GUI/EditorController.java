@@ -2,12 +2,8 @@ package GUI;
 
 import java.io.IOException;
 
-import javax.swing.text.Position;
-
-import org.fxmisc.richtext.CodeArea;
-
 import Logic.*;
-import javafx.event.Event;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -19,6 +15,20 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import Compile.*;
 
+import java.time.Duration;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+
+import org.fxmisc.flowless.VirtualizedScrollPane;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
+import org.fxmisc.richtext.model.StyleSpans;
+import org.fxmisc.richtext.model.StyleSpansBuilder;
+import org.reactfx.Subscription;
+
 public class EditorController {
 
 	public static String EXIT_TITLE = "Exit Message";
@@ -26,15 +36,67 @@ public class EditorController {
 	public static String LOGOUT_TITLE = "Logout Message";
 	public static String LOGOUT_MESSAGE = "Are you sure you want to logout?";
 	
-	
+	 private static final String[] KEYWORDS = new String[] {
+	         "abstract", "assert", "boolean", "break", "byte",
+	         "case", "catch", "char", "class", "const",
+	         "continue", "default", "do", "double", "else",
+	         "enum", "extends", "final", "finally", "float",
+	         "for", "goto", "if", "implements", "import",
+	         "instanceof", "int", "interface", "long", "native",
+	         "new", "package", "private", "protected", "public",
+	         "return", "short", "static", "strictfp", "super",
+	         "switch", "synchronized", "this", "throw", "throws",
+	         "transient", "try", "void", "volatile", "while"
+	 };
+	 
+	 private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")\\b";
+	 private static final String PAREN_PATTERN = "\\(|\\)";
+	 private static final String BRACE_PATTERN = "\\{|\\}";
+	 private static final String BRACKET_PATTERN = "\\[|\\]";
+	 private static final String SEMICOLON_PATTERN = "\\;";
+	 private static final String STRING_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
+	 private static final String COMMENT_PATTERN = "//[^\n]*" + "|" + "/\\*(.|\\R)*?\\*/";
+
+	 private static final Pattern PATTERN = Pattern.compile(
+	         "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+	         + "|(?<PAREN>" + PAREN_PATTERN + ")"
+	         + "|(?<BRACE>" + BRACE_PATTERN + ")"
+	         + "|(?<BRACKET>" + BRACKET_PATTERN + ")"
+	         + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
+	         + "|(?<STRING>" + STRING_PATTERN + ")"
+	         + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+	 );
+	    
+	 private static final String sampleCode = String.join("\n", new String[] {
+	         "package com.example;",
+	         "",
+	         "import java.util.*;",
+	         "",
+	         "public class Foo extends Bar implements Baz {",
+	         "",
+	         "    /*",
+	         "     * multi-line comment",
+	         "     */",
+	         "    public static void main(String[] args) {",
+	         "        // single-line comment",
+	         "        for(String arg: args) {",
+	         "            if(arg.length() != 0)",
+	         "                System.out.println(arg);",
+	         "            else",
+	         "                System.err.println(\"Warning: empty string as argument\");",
+	         "        }",
+	         "    }",
+	         "",
+	         "}"
+	     });
+
 
 	private final Stage editorStage;
 
 	private User user;
 	private Project proj;
-
-	//@FXML 
-	private TextArea txtEditor;
+	
+	private CodeArea codeArea;
 
 	@FXML
 	private TextArea txtConsole;
@@ -47,15 +109,14 @@ public class EditorController {
 	private int caretpos;
 	private int caretLine;
 	
-	private CodeArea codeArea;
 	
 	public EditorController(User user, Project proj) {
 		this.editorStage = new Stage();
 		this.user = user;
 		this.proj = proj;
 		this.codeArea = new CodeArea();
-		
-
+		 
+				
 		// Load the FXML file
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("EditorLayout.fxml"));
@@ -72,16 +133,14 @@ public class EditorController {
 			// Setup the window/stage
 			editorStage
 					.setTitle(this.proj.getName().concat("_").concat(this.proj.getCreator()));
+			
+			initCodeArea();
+			borderPane.setCenter(new VirtualizedScrollPane<>(codeArea));
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		    
-		
-		borderPane.setCenter(codeArea);
-		//setText();
-		
-		// txtEditor.setEditable(false);
 
 		editorStage.setOnCloseRequest(e -> {
 			e.consume();
@@ -94,12 +153,77 @@ public class EditorController {
 		flag = 0;
 	}
 
-	public void showStage() {
-		editorStage.show();
+	private void initCodeArea() {
+		
+		//add line numbers to the left of code area
+		codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
+				
+		// recompute the syntax highlighting 500 ms after user stops editing
+		Subscription cleanupWhenNoLongerNeedIt  = codeArea
+				// plain changes = ignore style changes that are emitted when syntax highlighting is reapplied
+                // multi plain changes = save computation by not rerunning the code multiple times
+                //   when making multiple changes (e.g. renaming a method at multiple parts in file)
+				.multiPlainChanges()
+				// do not emit an event until 500 ms have passed since the last emission of previous stream
+				.successionEnds(Duration.ofMillis(500))
+				// run the following code block when previous stream emits an event
+				.subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+		
+		// when no longer need syntax highlighting and wish to clean up memory leaks
+        // run: `cleanupWhenNoLongerNeedIt.unsubscribe();`
+		
+		 
+		// auto-indent: insert previous line's indents on enter
+        final Pattern whiteSpace = Pattern.compile( "^\\s+" );
+        codeArea.addEventHandler( KeyEvent.KEY_PRESSED, KE ->
+        {
+            if ( KE.getCode() == KeyCode.ENTER ) {
+            	int caretPosition = codeArea.getCaretPosition();
+            	int currentParagraph = codeArea.getCurrentParagraph();
+                Matcher m0 = whiteSpace.matcher( codeArea.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
+                if ( m0.find() ) Platform.runLater( () -> codeArea.insertText( caretPosition, m0.group() ) );
+            }
+        });
+        
+        
+        codeArea.replaceText(0, 0, sampleCode);  
+        
+        codeArea.setOnKeyPressed(e->{
+        	startLock();
+        });
+	}
+	
+	private void startLock() {
+		//get the caret line.
+		codeArea.getCurrentParagraph();
+		//TODO invoke action to lock lines in db!
 	}
 
-	public void setText() {
-		txtEditor.setText(proj.toString());
+	private static StyleSpans<Collection<String>> computeHighlighting(String text) {
+        Matcher matcher = PATTERN.matcher(text);
+        int lastKwEnd = 0;
+        StyleSpansBuilder<Collection<String>> spansBuilder
+                = new StyleSpansBuilder<>();
+        while(matcher.find()) {
+            String styleClass =
+                    matcher.group("KEYWORD") != null ? "keyword" :
+                    matcher.group("PAREN") != null ? "paren" :
+                    matcher.group("BRACE") != null ? "brace" :
+                    matcher.group("BRACKET") != null ? "bracket" :
+                    matcher.group("SEMICOLON") != null ? "semicolon" :
+                    matcher.group("STRING") != null ? "string" :
+                    matcher.group("COMMENT") != null ? "comment" :
+                    null; /* never happens */ assert styleClass != null;
+            spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
+            spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
+            lastKwEnd = matcher.end();
+        }
+        spansBuilder.add(Collections.emptyList(), text.length() - lastKwEnd);
+        return spansBuilder.create();
+    }
+
+	public void showStage() {
+		editorStage.show();
 	}
 
 	/*
@@ -155,40 +279,6 @@ public class EditorController {
 			// System.out.println(e);
 		}
 	}
-	
-	/*
-	@FXML 
-	public void MouseClicked(){
-		checkCaretLine();
-		try {
-			
-		}
-		catch (Exception e) {
-			// TODO: handle exception
-		}
-	}
-	*/
-
-	public void checkCaretLine() {
-		int maxLine = proj.getNumberOfLines();
-		int caretPos = txtEditor.getCaretPosition();
-		int tempPos = maxLine/2;
-		int line = 0;
-		 
-		txtEditor.positionCaret(0);
-		//while(tempPos>=1) {
-			//for(int i = 0; i<3;i++) {
-				
-		//txtEditor.
-		//fireEvent(new KeyEvent(null, txtEditor,KeyEvent.KEY_PRESSED, "", "", KeyCode.DOWN, false, false, false, false));
-		//System.out.println(txtEditor.getCaretPosition());
-			//}
-		//}
-		
-		
-//		return this.caretLine;
-	}
-	
 	
 	
 	
