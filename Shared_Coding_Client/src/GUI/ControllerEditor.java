@@ -6,11 +6,14 @@ import Logic.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import Compile.*;
@@ -18,6 +21,8 @@ import Compile.*;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +34,7 @@ import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
 import org.reactfx.Subscription;
 
-public class EditorController {
+public class ControllerEditor {
 
 	public static String EXIT_TITLE = "Exit Message";
 	public static String EXIT_MESSAGE = "Are you sure you want to exit the program?";
@@ -97,6 +102,8 @@ public class EditorController {
 	private Project proj;
 	
 	private CodeArea codeArea;
+	private CodeArea editCode;
+	private Button btnSend;
 
 	@FXML
 	private TextArea txtConsole;
@@ -106,20 +113,24 @@ public class EditorController {
 
 	private int flag;
 	
-	private int caretpos;
 	private int caretLine;
 	
+	private Stage addCodeStage;
 	
-	public EditorController(User user, Project proj) {
+	
+	public ControllerEditor(User user, Project proj) {
 		this.editorStage = new Stage();
 		this.user = user;
 		this.proj = proj;
 		this.codeArea = new CodeArea();
+		this.editCode = new CodeArea();
+		this.addCodeStage = new Stage();
+		addCodeStage.initModality(Modality.APPLICATION_MODAL);
 		 
 				
 		// Load the FXML file
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("EditorLayout.fxml"));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("LayoutEditor.fxml"));
 
 			// Set this class as the controller
 			loader.setController(this);
@@ -181,12 +192,13 @@ public class EditorController {
             	int caretPosition = codeArea.getCaretPosition();
             	int currentParagraph = codeArea.getCurrentParagraph();
                 Matcher m0 = whiteSpace.matcher( codeArea.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
-                if ( m0.find() ) Platform.runLater( () -> codeArea.insertText( caretPosition, m0.group() ) );
+                if ( m0.find() ) Platform.runLater( () -> codeArea.insertText( caretPosition, m0.group()));
             }
         });
         
         
-        codeArea.replaceText(0, 0, sampleCode);  
+        codeArea.replaceText(0, 0, proj.toString());  
+        codeArea.setEditable(false);
         
         codeArea.setOnKeyPressed(e->{
         	startLock();
@@ -194,9 +206,78 @@ public class EditorController {
 	}
 	
 	private void startLock() {
-		//get the caret line.
-		codeArea.getCurrentParagraph();
-		//TODO invoke action to lock lines in db!
+			//get the caret line.
+			this.caretLine = codeArea.getCurrentParagraph();
+		
+			//check if not already locked, if not make the locks
+			if(this.proj.Lock(caretLine)) {
+				this.editCode.clear();
+				createEditWindow();
+				this.editCode.replaceText(0, 0, this.proj.toString(this.caretLine));
+			}
+			//TODO invoke action to lock lines in db!
+	}
+
+
+
+	private void createEditWindow() {
+		//add line numbers to the left of code area
+				editCode.setParagraphGraphicFactory(LineNumberFactory.get(editCode));	
+				
+				// recompute the syntax highlighting 500 ms after user stops editing
+				Subscription cleanupWhenNoLongerNeedIt  = editCode
+						// plain changes = ignore style changes that are emitted when syntax highlighting is reapplied
+		                // multi plain changes = save computation by not rerunning the code multiple times
+		                //   when making multiple changes (e.g. renaming a method at multiple parts in file)
+						.multiPlainChanges()
+						// do not emit an event until 500 ms have passed since the last emission of previous stream
+						.successionEnds(Duration.ofMillis(500))
+						// run the following code block when previous stream emits an event
+						.subscribe(ignore -> editCode.setStyleSpans(0, computeHighlighting(editCode.getText())));
+				
+				// when no longer need syntax highlighting and wish to clean up memory leaks
+		        // run: `cleanupWhenNoLongerNeedIt.unsubscribe();`
+				
+				 
+				// auto-indent: insert previous line's indents on enter
+		        final Pattern whiteSpace = Pattern.compile( "^\\s+" );
+		        editCode.addEventHandler( KeyEvent.KEY_PRESSED, KE ->
+		        {
+		            if ( KE.getCode() == KeyCode.ENTER ) {
+		            	int caretPosition = editCode.getCaretPosition();
+		            	int currentParagraph = editCode.getCurrentParagraph();
+		                Matcher m0 = whiteSpace.matcher( editCode.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
+		                if ( m0.find() ) Platform.runLater( () -> editCode.insertText( caretPosition, m0.group() ) );
+		            }
+		        });
+		        
+		        BorderPane pane = new BorderPane();
+		        pane.setCenter(new StackPane(new VirtualizedScrollPane<>(editCode)));
+		        //width, hight
+
+		        btnSend = new Button("send");
+		        btnSend.setOnAction(e->{
+		        	sendNewCode();
+		        });
+		        pane.setBottom(btnSend);
+		        BorderPane.setAlignment(btnSend, Pos.CENTER_RIGHT);
+		        
+		        
+		        Scene editCodeScene = new Scene(pane,this.editorStage.getX()+this.editorStage.getWidth()/2,200);
+		        editCodeScene.getStylesheets().add("@LayoutEditor.css");
+		        addCodeStage.setScene(editCodeScene);
+		        addCodeStage.setTitle("edit code");
+		        addCodeStage.setResizable(false);
+		        //set on left side
+		        addCodeStage.setX(0);
+		        //set at the hight of the caret
+		        addCodeStage.setY(200);
+		        addCodeStage.setOnCloseRequest(e->{
+		        	e.consume();
+		        	sendNewCode();
+		        });
+		        
+		        addCodeStage.show();
 	}
 
 	private static StyleSpans<Collection<String>> computeHighlighting(String text) {
@@ -242,6 +323,19 @@ public class EditorController {
 		Boolean isExit = ConfirmBox.display(title, msg);
 		if (isExit)
 			editorStage.close();
+	}
+	
+	public void sendNewCode() {
+		List<Line> list = new LinkedList<>();
+		addCodeStage.close();
+		list = this.proj.setText(this.caretLine,editCode.getText());
+		this.proj.unLock(this.caretLine);
+    	this.codeArea.clear();
+    	this.codeArea.replaceText(0,0,this.proj.toString());
+		//codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
+    	
+    	//update server
+    	//fix conflicts
 	}
 
 	@FXML 

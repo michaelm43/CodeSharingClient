@@ -3,13 +3,10 @@ package Logic;
 public class Line {
 
 	private String line;
-	private Integer lineNumber;
+	private int lineNumber;
 	private boolean lock;
-	private int tabs;
-	private Integer start;
-	private Integer end;
 	
-	public Line(String line, Integer lineNumber) {
+	public Line(String line, int lineNumber) {
 		super();
 		this.line = line;
 		this.lineNumber = lineNumber;
@@ -22,10 +19,10 @@ public class Line {
 	public void setLine(String line) {
 		this.line = line;
 	}
-	public Integer getLineNumber() {
+	public int getLineNumber() {
 		return lineNumber;
 	}
-	public void setLineNumber(Integer lineNumber) {
+	public void setLineNumber(int lineNumber) {
 		this.lineNumber = lineNumber;
 	}
 	public boolean isLock() {

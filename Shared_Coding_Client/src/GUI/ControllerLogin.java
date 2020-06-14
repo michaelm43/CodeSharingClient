@@ -10,7 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-public class LoginController{
+public class ControllerLogin{
 	 
 	@FXML Label lblErrorMessage;
 	@FXML TextField txtEmail;
@@ -20,12 +20,12 @@ public class LoginController{
 	private final Stage loginStage;
 	
 	
-	public LoginController() {
+	public ControllerLogin() {
 		this.loginStage = new Stage();
 		
 		// Load the FXML file
         try {    		     	
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginLayout.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("LayoutLogin.fxml"));
 
             // Set this class as the controller
             loader.setController(this);
@@ -60,10 +60,12 @@ public class LoginController{
 				
 		}
 		else {
-			user = new User(txtEmail.getText(),txtPassword.getText());
-			NewFileController fileNameController;
-			if(new UserRequests().loginUser(user))
-				fileNameController = new NewFileController(this.loginStage, user);
+			user = new UserRequests().loginUser(new User(txtEmail.getText(),txtPassword.getText()));
+			if(user != null) {
+				//ControllerNewFile fileNameController;
+				//fileNameController = 
+				new ControllerNewFile(this.loginStage, user);
+			}
 			else {
 				lblErrorMessage.setText("The user isn't exist");
 				lblErrorMessage.setVisible(true);
@@ -78,7 +80,7 @@ public class LoginController{
 	 */
 	@FXML
 	public void registerPageAction() throws IOException {
-		RegisterController registerController = new RegisterController();
+		ControllerRegister registerController = new ControllerRegister();
 		
 		registerController.showStage();
 	}

@@ -15,7 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class RegisterController {
+public class ControllerRegister {
 
 	private final Stage registerStage;
 	
@@ -24,12 +24,12 @@ public class RegisterController {
 	@FXML private TextField txtEmail;
 	@FXML private PasswordField txtVerifyPassword;
 	
-	public RegisterController() {
+	public ControllerRegister() {
 		this.registerStage = new Stage();
 		
 		// Load the FXML file
         try {    		     	
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("RegisterLayout.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("LayoutRegister.fxml"));
 
             // Set this class as the controller
             loader.setController(this);

@@ -9,21 +9,10 @@ import java.net.URL;
 import com.google.gson.Gson;
 
 import Logic.User;
-/*
-import org.json.simple.*;
-
-import org.json.*;
-import org.json.JSONObject;
-
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;*/
-
 
 public class UserRequests {
 
-	public static String IP = "10.0.1.26";
+	public static String IP = "192.168.1.22";
 //	public static String IP = "192.168.1.229";
 	public static String PORT = "8089";
 	
@@ -81,10 +70,10 @@ public class UserRequests {
 		return isRegistered;
 	}
 		
-	public Boolean loginUser(User user) {
-		boolean isExist = false;
+	public User loginUser(User user) {
+		User tempUser = null;
 		try {
-			URL url = new URL(baseUrl + "/users/login/" + user.getEmail());
+			URL url = new URL(baseUrl + "/users/login/" + user.getEmail() + "/" + user.getPassword());
 			
 						
 			///URL and parameters for the connection.
@@ -103,11 +92,9 @@ public class UserRequests {
 			//creates a reader buffer
 			if (responseCode >199 && responseCode<300) {
 				bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
-				isExist = true;
 			}
 			else {
 				bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getErrorStream()));
-				isExist = false;
 			}
 			
 			//To recive the response
@@ -118,6 +105,10 @@ public class UserRequests {
 			bufferReader.close();
 			
 			System.out.println(content.toString());
+			
+			Gson gson = new Gson();
+			tempUser = gson.fromJson(content.toString(), User.class);
+			System.out.println("line 111 - project = " + tempUser.getProjectList());
 		
 		} catch (Exception e) {
 			
@@ -125,10 +116,58 @@ public class UserRequests {
 			System.out.println(e.getClass().getSimpleName());
 			System.out.println(e.getMessage());
 		}
-		return isExist;
+		return tempUser;
 }
 	
 	
-	//TODO put User!
+	public boolean editUser(User user) {
+		boolean isUpdated = false;
+		try {
+			URL url = new URL(baseUrl + "/users/" + user.getEmail());
+			
+						
+			///URL and parameters for the connection.
+			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+			httpConnection.setDoOutput(true);
+			httpConnection.setRequestMethod("PUT");
+			httpConnection.setRequestProperty("Content-Type", "application/json");
+			httpConnection.setRequestProperty("Accept", "application/json");
+			
+			
+			Integer responseCode = httpConnection.getResponseCode();
+			System.out.println("responseCode : " + responseCode);
+		
+			BufferedReader bufferReader;
+			
+			//creates a reader buffer
+			if (responseCode >199 && responseCode<300) {
+				//bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+				isUpdated = true;
+			}
+			else {
+				bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getErrorStream()));
+				isUpdated = false;
+			}
+			
+			//To recive the response
+			StringBuilder content = new StringBuilder();
+			String line;
+			//while((line = bufferReader.readLine()) != null) 
+				//content.append(line).append("\n");
+			//bufferReader.close();
+			
+			System.out.println(content.toString());
+		
+		} catch (Exception e) {
+			
+			System.out.println("Error Message");
+			System.out.println(e.getClass().getSimpleName());
+			System.out.println(e.getMessage());
+		}
+		
+		
+		
+		return isUpdated;
+	}
 	
 }

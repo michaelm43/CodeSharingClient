@@ -21,7 +21,7 @@ public class Main extends Application{
 		
 		//Socket soket = new Socket("10.0.1.26", 8089);
 		
-		LoginController loginController = new LoginController();
+		ControllerLogin loginController = new ControllerLogin();
 		
 		loginController.showStage();
 	}	

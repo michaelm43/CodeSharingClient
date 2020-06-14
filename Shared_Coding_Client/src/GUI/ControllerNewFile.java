@@ -3,6 +3,7 @@ package GUI;
 import java.io.IOException;
 
 import HttpRequests.ElementRequest;
+import HttpRequests.UserRequests;
 import Logic.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-public class NewFileController {
+public class ControllerNewFile {
 
 	@FXML TextField txtFileName;
 	@FXML Label lblErrorMessage;
@@ -20,13 +21,15 @@ public class NewFileController {
 	private Project proj;
 	private final Stage newFileStage;
 	
-	public NewFileController(Stage stage, User user) {
+	public ControllerNewFile(Stage stage, User user) {
 		this.newFileStage = stage;
 		this.user = user;
+		System.out.println(user);
+		
 		
 		// Load the FXML file
         try {    		     	
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("NewFileLayout.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("LayoutNewFile.fxml"));
 
             // Set this class as the controller
             loader.setController(this);
@@ -42,7 +45,7 @@ public class NewFileController {
         }
 	}
 
-
+	
 	/*
 	 * New File -> Editor
 	 * open a new file with the file name.
@@ -59,8 +62,10 @@ public class NewFileController {
 			proj = new Project(txtFileName.getText(), user.getEmail());
 			if(new ElementRequest().openNewFile(user,proj)) {
 				newFileStage.close();
-				user.addProject(txtFileName.getText().concat("-").concat(user.getEmail()));
-				EditorController editorController = new EditorController(user, proj);
+				String fileKey = txtFileName.getText().concat("-").concat(user.getEmail());
+				user.addProject(fileKey);
+				new UserRequests().editUser(user);
+				ControllerEditor editorController = new ControllerEditor(user, proj);
 				editorController.showStage();
 			}
 			else {
