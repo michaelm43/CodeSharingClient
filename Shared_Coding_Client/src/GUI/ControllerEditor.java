@@ -341,7 +341,7 @@ public class ControllerEditor {
 	@FXML 
 	public void addUser() throws IOException{
 		//TODO SHAY
-		String email = AddUser.display();
+		String email = AddUserBox.display();
 		if(email.isEmpty()) {
 			//Cancel button pushed or email field is empty
 		}
