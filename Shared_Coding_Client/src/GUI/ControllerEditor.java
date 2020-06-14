@@ -340,7 +340,18 @@ public class ControllerEditor {
 
 	@FXML 
 	public void addUser() throws IOException{
-		
+		//TODO SHAY
+		String email = AddUser.display();
+		if(email.isEmpty()) {
+			//Cancel button pushed or email field is empty
+		}
+		else if(!ControllerLogin.isValidEmail(email)){
+			//The email is not Valid
+		}
+		else {
+			System.out.println("email to add : " + email);
+			//The email is valid
+		}
 	}
 	
 	@FXML

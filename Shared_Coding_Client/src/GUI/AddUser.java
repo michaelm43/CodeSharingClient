@@ -1,35 +1,43 @@
 package GUI;
 
 import javafx.geometry.Pos;
-import javafx.scene.*;
-import javafx.scene.control.*;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ConfirmBox {
+public class AddUser {
 	
-	static boolean answer;
+	private static String email;
 	
-	public static Boolean display(String title, String message) {
+	public static String display() {
 		Stage window = new Stage();
 		window.initModality(Modality.APPLICATION_MODAL);
-		window.setTitle(title);
+		window.setTitle("choose user email");
 		window.setMinWidth(250);
 		
 		Label label = new Label();
-		label.setText(message);
+		label.setText("All users");
 		
-		Button btnYes = new Button("Yes");
-		Button btnNo = new Button("No");
+		//TODO Request server for all users 
+		//List<String> names = new ArrayList<>();
+		
+		TextField tfEmail = new TextField();
+		
+		
+		Button btnYes = new Button("ADD");
+		Button btnNo = new Button("Cancel");
 		
 		btnYes.setOnAction(e->{
-			answer = true;
+			email = tfEmail.getText();
 			window.close();
 		});
 		btnNo.setOnAction(e->{
-			answer = false;
+			email = "";
 			window.close();
 		});
 		
@@ -39,13 +47,14 @@ public class ConfirmBox {
 		buttons.getChildren().addAll(btnNo,btnYes);
 		buttons.setAlignment(Pos.BOTTOM_CENTER);
 		
-		layout.getChildren().addAll(label,buttons);
+		//TODO add list of users to view
+		layout.getChildren().addAll(label,tfEmail,buttons);
 		layout.setAlignment(Pos.CENTER);
 		
 		Scene scene = new Scene(layout);
 		window.setScene(scene);
 		window.showAndWait();
 		
-		return answer;
+		return email;
 	}
 }
