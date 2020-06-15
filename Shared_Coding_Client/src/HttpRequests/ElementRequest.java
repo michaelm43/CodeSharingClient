@@ -44,7 +44,7 @@ public class ElementRequest {
 			DataOutputStream wr = new DataOutputStream(httpConnection.getOutputStream());
 			wr.write(json.getBytes());
 			Integer responseCode = httpConnection.getResponseCode();
-			System.out.println("create new fileresponseCode : " + responseCode);
+			System.out.println("create new file responseCode : " + responseCode);
 		
 			BufferedReader bufferReader;
 			

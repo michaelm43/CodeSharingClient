@@ -50,6 +50,18 @@ public class Project {
 		this.numberOfLines = initCode.size();
 	}
 	
+	public Project(Project proj) {
+		super();
+		this.name = proj.getName();
+		this.creator = proj.getCreator();
+		
+		this.linesOfCode = proj.getLinesOfCode();
+		this.users = proj.getUsers();
+		this.activeUsers = proj.getActiveUsers();
+		
+		this.numberOfLines = proj.getNumberOfLines();
+	}
+	
 	public String getName() {
 		return name;
 	}

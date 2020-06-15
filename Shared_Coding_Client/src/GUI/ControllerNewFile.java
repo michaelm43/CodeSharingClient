@@ -20,10 +20,12 @@ public class ControllerNewFile {
 	private User user;
 	private Project proj;
 	private final Stage newFileStage;
+	private final Stage editorStage;
 	
-	public ControllerNewFile(Stage stage, User user) {
+	public ControllerNewFile(Stage stage, User user,Stage editorStage) {
 		this.newFileStage = stage;
 		this.user = user;
+		this.editorStage = editorStage;
 		
 		
 		// Load the FXML file
@@ -64,7 +66,7 @@ public class ControllerNewFile {
 				String fileKey = user.getEmail().concat("-").concat(txtFileName.getText());
 				user.addProject(fileKey);
 				new UserRequests().editUser(user);
-				ControllerEditor editorController = new ControllerEditor(user, proj);
+				ControllerEditor editorController = new ControllerEditor(user, proj,this.editorStage);
 				editorController.showStage();
 			}
 			else {
@@ -82,7 +84,7 @@ public class ControllerNewFile {
 	 */
 	@FXML
 	public void OpenPageAction() throws IOException {
-		ControllerOpenFile openfileController = new ControllerOpenFile(user);
+		ControllerOpenFile openfileController = new ControllerOpenFile(user,this.editorStage);
 		openfileController.showStage();
 	}
 }

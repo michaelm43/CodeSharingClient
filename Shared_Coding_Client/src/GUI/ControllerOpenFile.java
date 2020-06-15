@@ -18,9 +18,12 @@ public class ControllerOpenFile {
 	private User user;
 	private Project proj;
 	private final Stage openFileStage;
+	private final Stage editorStage;
 	
-	public ControllerOpenFile(User user) {
+	public ControllerOpenFile(User user,Stage editorStage) {
 		this.openFileStage = new Stage();
+		this.editorStage = editorStage;
+			
 		this.user = user;
 		
 		// Load the FXML file
@@ -58,7 +61,7 @@ public class ControllerOpenFile {
 		if(proj != null) {
 			openFileStage.close();
 			//TODO add to active Users
-			ControllerEditor editorController = new ControllerEditor(user, proj);
+			ControllerEditor editorController = new ControllerEditor(user, proj,this.editorStage);
 			editorController.showStage();
 		}
 	}

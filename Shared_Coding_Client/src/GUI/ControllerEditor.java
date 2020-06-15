@@ -120,8 +120,14 @@ public class ControllerEditor {
 	private Stage addCodeStage;
 	
 	
-	public ControllerEditor(User user, Project proj) {
-		this.editorStage = new Stage();
+	public ControllerEditor(User user, Project proj, Stage stage) {
+		if(stage ==null)
+			this.editorStage = new Stage();
+		else {
+			this.editorStage = stage;
+			this.editorStage.setMaximized(true);
+		}
+		
 		this.user = user;
 		this.proj = proj;
 		this.codeArea = new CodeArea();
@@ -141,7 +147,7 @@ public class ControllerEditor {
 			editorStage.setScene(new Scene(loader.load()));
 
 			editorStage.setMaximized(true);
-			editorStage.initModality(Modality.APPLICATION_MODAL);
+//			editorStage.initModality(Modality.APPLICATION_MODAL);
 
 			// Setup the window/stage
 			editorStage
@@ -266,7 +272,7 @@ public class ControllerEditor {
 		        
 		        
 		        Scene editCodeScene = new Scene(pane,this.editorStage.getX()+this.editorStage.getWidth()/2,200);
-		        editCodeScene.getStylesheets().add("@LayoutEditor.css");
+		        editCodeScene.getStylesheets().add("LayoutEditor.css");
 		        addCodeStage.setScene(editCodeScene);
 		        addCodeStage.setTitle("edit code");
 		        addCodeStage.setResizable(false);
@@ -375,5 +381,35 @@ public class ControllerEditor {
 		} catch (Exception e) {
 			txtConsole.setText("" + e);
 		}
+	}
+	
+	public Stage getStage() {
+		return editorStage;
+	}
+	
+	@FXML 
+	public void newFile() throws IOException{
+		Stage newFileStage = new Stage();
+		
+		new ControllerNewFile(newFileStage, user, this.editorStage);
+		newFileStage.show();
+	}
+	
+	@FXML
+	public void openFile() throws IOException{
+		Stage openFileStage = new Stage();
+		
+		new ControllerOpenFile(user, this.editorStage).showStage();;
+		
+	}
+	
+	@FXML
+	public void logout() throws IOException{
+		//TODO open existing file
+	}
+	
+	@FXML
+	public void changePassword() throws IOException{
+		//TODO open existing file
 	}
 }

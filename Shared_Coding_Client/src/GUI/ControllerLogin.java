@@ -64,7 +64,7 @@ public class ControllerLogin{
 			if(user != null) {
 				//ControllerNewFile fileNameController;
 				//fileNameController = 
-				new ControllerNewFile(this.loginStage, user);
+				new ControllerNewFile(this.loginStage, user,null);
 			}
 			else {
 				lblErrorMessage.setText("The user isn't exist");

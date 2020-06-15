@@ -13,6 +13,14 @@ public class Line {
 		this.lock = false;
 	}
 	
+	public Line(Line line) {
+		super();
+		this.line = line.getLine();
+		this.lineNumber = line.getLineNumber();
+		this.lock = line.isLock();
+	}
+	
+	
 	public String getLine() {
 		return line;
 	}
