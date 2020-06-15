@@ -150,18 +150,18 @@ public class Project {
 
 	public boolean Lock(int caretLine) {
 		if(caretLine<1 || caretLine<2) {
-			if(this.linesOfCode.get(0).isLock())
+			if(this.linesOfCode.get(0).isLocked())
 				return false;
 		}
 		else if(caretLine+2>=this.getNumberOfLines()||caretLine+1>=this.getNumberOfLines()) {
-			if(this.linesOfCode.get(getNumberOfLines()-1).isLock())
+			if(this.linesOfCode.get(getNumberOfLines()-1).isLocked())
 				return false;
 		}
-		else if(this.linesOfCode.get(caretLine-2).isLock()||this.linesOfCode.get(caretLine+2).isLock())
+		else if(this.linesOfCode.get(caretLine-2).isLocked()||this.linesOfCode.get(caretLine+2).isLocked())
 			return false;
 		for(int i=-2;i<3;i++) {
 			if(caretLine+i >= 0 && caretLine+i < numberOfLines) {
-				this.linesOfCode.get(caretLine+i).setLock(true);
+				this.linesOfCode.get(caretLine+i).setLocked(true);
 				lockednumber++;
 			}}
 		try {
@@ -179,7 +179,7 @@ public class Project {
 	public void unLock(int caretLine) {
 		for(int i=-2;i<3;i++)
 			if(caretLine+i >= 0 && caretLine+i < numberOfLines) {
-				this.linesOfCode.get(caretLine+i).setLock(false);
+				this.linesOfCode.get(caretLine+i).setLocked(false);
 			}
 		lockednumber = 0;
 	}
@@ -219,7 +219,7 @@ public class Project {
 		 * update all the line numbers
 		 */
 		for(int i = length+start; i <linesOfCode.size();i++) {
-			linesOfCode.get(i).setLineNumber(i);
+			linesOfCode.get(i).setNumber(i);
 		}
 		
 		System.out.println(this.toString());

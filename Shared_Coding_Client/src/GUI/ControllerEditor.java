@@ -405,11 +405,27 @@ public class ControllerEditor {
 	
 	@FXML
 	public void logout() throws IOException{
-		//TODO open existing file
+		Boolean isExit = ConfirmBox.display("Logout", "are you shure you want to logout?");
+		if(isExit) {
+			//TODO update server
+			this.editorStage.close();
+			
+			new ControllerLogin().showStage();
+		}
 	}
 	
 	@FXML
-	public void changePassword() throws IOException{
-		//TODO open existing file
+	public void changePassword() throws IOException {
+		ControllerPassword controllerPassword = new ControllerPassword(this, user);
+		controllerPassword.showStage();
+	}
+	
+	@FXML
+	public void deleteProject() throws IOException {
+		new ControllerDeleteProject(this, user).showStage();
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 }

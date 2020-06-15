@@ -34,7 +34,7 @@ public class ProjectWithFields {
 		ListIterator<Line> itr = proj.getLinesOfCode().listIterator();
 		
 		while(itr.hasNext()) {
-			editor.add(new TextField(itr.next().getLine()));
+			editor.add(new TextField(itr.next().getCode()));
 		}
 	}
 	

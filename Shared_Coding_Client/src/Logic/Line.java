@@ -2,51 +2,51 @@ package Logic;
 
 public class Line {
 
-	private String line;
-	private int lineNumber;
-	private boolean lock;
+	private int number;
+	private String code;
+	private boolean locked;
 	
 	public Line(String line, int lineNumber) {
 		super();
-		this.line = line;
-		this.lineNumber = lineNumber;
-		this.lock = false;
+		this.code = line;
+		this.number = lineNumber;
+		this.locked = false;
 	}
 	
 	public Line(Line line) {
 		super();
-		this.line = line.getLine();
-		this.lineNumber = line.getLineNumber();
-		this.lock = line.isLock();
+		this.code = line.getCode();
+		this.number = line.getNumber();
+		this.locked = line.isLocked();
 	}
 	
 	
-	public String getLine() {
-		return line;
+	public String getCode() {
+		return code;
 	}
-	public void setLine(String line) {
-		this.line = line;
+	public void setCode(String line) {
+		this.code = line;
 	}
-	public int getLineNumber() {
-		return lineNumber;
+	public int getNumber() {
+		return number;
 	}
-	public void setLineNumber(int lineNumber) {
-		this.lineNumber = lineNumber;
+	public void setNumber(int lineNumber) {
+		this.number = lineNumber;
 	}
-	public boolean isLock() {
-		return lock;
+	public boolean isLocked() {
+		return locked;
 	}
-	public void setLock(boolean lock) {
-		this.lock = lock;
+	public void setLocked(boolean locked) {
+		this.locked = locked;
 	}
 
 	@Override
 	public String toString() {
-		return line +"\n"; 
+		return code +"\n"; 
 	}
 	
 	public String toStringWithNumbers() {
-		return lineNumber + "\t" + line +"\n"; 
+		return number + "\t" + code +"\n"; 
 	}
 
 }

@@ -19,7 +19,8 @@
                   <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#logout" text="Logout" />
-                  <MenuItem mnemonicParsing="false" onAction="#changePassword" text="change password" />
+                  <MenuItem mnemonicParsing="false" onAction="#changePassword" text="change psw" />
+                  <MenuItem mnemonicParsing="false" onAction="#deleteProject" text="delete project" />
                   <SeparatorMenuItem mnemonicParsing="false" />
               <MenuItem mnemonicParsing="false" onAction="#exitProgram" text="Exit" />
             </items>
