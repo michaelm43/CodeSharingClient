@@ -18,6 +18,10 @@ public class UserRequests {
 	
 	private String baseUrl = "http://" + IP + ":" + PORT + "/";
 	
+	/*
+	 * newUser()
+	 * register a new user to the app
+	 */
 	public boolean registerUser(User user) {
 		boolean isRegistered = false;
 		try {
@@ -37,7 +41,7 @@ public class UserRequests {
 			DataOutputStream wr = new DataOutputStream(httpConnection.getOutputStream());
 			wr.write(json.getBytes());
 			Integer responseCode = httpConnection.getResponseCode();
-			System.out.println("responseCode : " + responseCode);
+			System.out.println("register responseCode : " + responseCode);
 		
 			BufferedReader bufferReader;
 			
@@ -70,6 +74,10 @@ public class UserRequests {
 		return isRegistered;
 	}
 		
+	/*
+	 * getUser()
+	 * login a user to the app
+	 */
 	public User loginUser(User user) {
 		User tempUser = null;
 		try {
@@ -85,7 +93,7 @@ public class UserRequests {
 			
 			
 			Integer responseCode = httpConnection.getResponseCode();
-			System.out.println("responseCode : " + responseCode);
+			System.out.println("login responseCode : " + responseCode);
 		
 			BufferedReader bufferReader;
 			
@@ -120,11 +128,17 @@ public class UserRequests {
 }
 	
 	
+	/*
+	 * updateUser()
+	 * update password/add to project List
+	 */
 	public boolean editUser(User user) {
 		boolean isUpdated = false;
 		try {
 			URL url = new URL(baseUrl + "/users/" + user.getEmail());
 			
+			Gson gson = new Gson();
+			String json = gson.toJson(user);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -134,8 +148,12 @@ public class UserRequests {
 			httpConnection.setRequestProperty("Accept", "application/json");
 			
 			
+			DataOutputStream wr = new DataOutputStream(httpConnection.getOutputStream());
+			wr.write(json.getBytes());
+			
 			Integer responseCode = httpConnection.getResponseCode();
-			System.out.println("responseCode : " + responseCode);
+			System.out.println("update user responseCode : " + responseCode);
+			
 		
 			BufferedReader bufferReader;
 			

@@ -24,7 +24,6 @@ public class ControllerNewFile {
 	public ControllerNewFile(Stage stage, User user) {
 		this.newFileStage = stage;
 		this.user = user;
-		System.out.println(user);
 		
 		
 		// Load the FXML file
@@ -62,7 +61,7 @@ public class ControllerNewFile {
 			proj = new Project(txtFileName.getText(), user.getEmail());
 			if(new ElementRequest().openNewFile(user,proj)) {
 				newFileStage.close();
-				String fileKey = txtFileName.getText().concat("-").concat(user.getEmail());
+				String fileKey = user.getEmail().concat("-").concat(txtFileName.getText());
 				user.addProject(fileKey);
 				new UserRequests().editUser(user);
 				ControllerEditor editorController = new ControllerEditor(user, proj);
@@ -83,9 +82,7 @@ public class ControllerNewFile {
 	 */
 	@FXML
 	public void OpenPageAction() throws IOException {
-//		openFileScene = new Scene(FXMLLoader.load(getClass().getResource("OpenFileLayout.fxml")),300,150);
-//		window = (Stage)((Node)event.getSource()).getScene().getWindow();
-//		window.setScene(openFileScene);
-//		window.show();
+		ControllerOpenFile openfileController = new ControllerOpenFile(user);
+		openfileController.showStage();
 	}
 }

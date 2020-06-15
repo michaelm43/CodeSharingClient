@@ -2,14 +2,13 @@ package GUI;
 
 import java.io.IOException;
 
+import HttpRequests.ElementRequest;
 import Logic.Project;
 import Logic.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class ControllerOpenFile {
@@ -32,7 +31,7 @@ public class ControllerOpenFile {
             loader.setController(this);
 
             // Load the scene
-            openFileStage.setScene(new Scene(loader.load(),300,150));
+            openFileStage.setScene(new Scene(loader.load()));
 
             // Setup the window/stage
             openFileStage.setTitle("open file");
@@ -41,16 +40,31 @@ public class ControllerOpenFile {
             e.printStackTrace();
         }
         
-        cbFileNames.getItems().addAll(user.getProjectList());
+        cbFileNames.getItems().addAll(this.user.getProjectList());
+        //set the first project in list
+        if(!this.user.getProjectList().isEmpty())
+        	cbFileNames.setValue(this.user.getProjectList().get(0));
+	}
+	
+	public void showStage() {
+		openFileStage.showAndWait();
 	}
 	
 	@FXML
-	public void OpenFile() {
+	public void openFile() {
+		String fileKey = cbFileNames.getValue();
 		
+		proj = new ElementRequest().openExistingFile(user,fileKey);
+		if(proj != null) {
+			openFileStage.close();
+			//TODO add to active Users
+			ControllerEditor editorController = new ControllerEditor(user, proj);
+			editorController.showStage();
+		}
 	}
 	
 	@FXML
-	public void Cancel() {
-		
+	public void cancel() {
+		openFileStage.close();
 	}
 }

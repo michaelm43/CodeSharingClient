@@ -17,6 +17,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import Compile.*;
+import Compile.Compiler;
+import HttpRequests.ActionRequest;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -323,6 +325,7 @@ public class ControllerEditor {
 		Boolean isExit = ConfirmBox.display(title, msg);
 		if (isExit)
 			editorStage.close();
+		//TODO delete user from active Users
 	}
 	
 	public void sendNewCode() {
@@ -337,7 +340,6 @@ public class ControllerEditor {
     	//update server
     	//fix conflicts
 	}
-
 	@FXML 
 	public void addUser() throws IOException{
 		//TODO SHAY
@@ -351,6 +353,7 @@ public class ControllerEditor {
 		else {
 			System.out.println("email to add : " + email);
 			//The email is valid
+			new ActionRequest().addNewUser(user, proj, email);
 		}
 	}
 	
@@ -358,44 +361,19 @@ public class ControllerEditor {
 	public void onRun() throws IOException {
 		txtConsole.setVisible(true);
 		try {
-			txtConsole.setText("COMPILATION....");
-			if (flag == 0) {
-				Comp c = new Comp(proj.toString(), txtConsole);
+			Compiler compiler = new Compiler();
+			compiler.compile(proj.toString(), proj.getName());
+			if (compiler.getCompilerErrorOutput() == null) { // RUN THE PROGRAM
+				Run c = new Run(proj, txtConsole);
 				Thread t = new Thread(c, "compile");
 				t.start();
-				flag = 1; // NOW ITS TIME TO RUN
-				
-			} else {
-				String path_run = this.proj.getName();
-				Process p = Runtime.getRuntime().exec("cmd /c " + "cd .&& javaw " + path_run);
-				Run r = new Run(txtConsole, p);
-				Run1 r1 = new Run1(txtConsole, p);
-				Run2 r2 = new Run2(txtConsole, p);
-				Thread tr = new Thread(r, "run");
-				Thread tr1 = new Thread(r1, "run1");
-				Thread tr2 = new Thread(r2, "run2");
-				tr.start();
-				tr1.start();
-				tr2.start();
-				flag = 0;
 			}
+
+			else
+				txtConsole.setText("" + compiler.getCompilerErrorOutput());
+
 		} catch (Exception e) {
 			txtConsole.setText("" + e);
-			// System.out.println(e);
 		}
 	}
-	
-	
-	
-//	@FXML
-//	public void onCompile() throws IOException {
-//		try {
-//			Comp c = new Comp(proj.getProject().toString(), txtConsole);
-//			Thread t = new Thread(c, "compile");
-//			t.start();	
-//		}
-//			catch (Exception e22) {
-//			System.out.println(e22);
-//		}
-//	}
 }

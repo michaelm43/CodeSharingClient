@@ -213,4 +213,8 @@ public class Project {
 		System.out.println(this.toString());
 		return newText;
 	}
+	
+	public String getKey() {
+		return this.creator + "-" + this.name;
+	}
 }
