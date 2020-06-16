@@ -148,40 +148,25 @@ public class Project {
 	}
 
 
+	public int get2LinesUpFromCaret(int caretLine) {
+		if(caretLine >= 2) 
+			return caretLine-2;
+		else 
+			return 0;
+	}
+	
+	public int get2LinesDownfromCaret(int caretLine) {
+		if(caretLine < this.numberOfLines-2)
+			return caretLine+2;
+		else 
+			return this.numberOfLines-1;
+
+	}
+	
 	public boolean Lock(int caretLine) {
-		if(caretLine<1 || caretLine<2) {
-			if(this.linesOfCode.get(0).isLocked())
-				return false;
-		}
-		else if(caretLine+2>=this.getNumberOfLines()||caretLine+1>=this.getNumberOfLines()) {
-			if(this.linesOfCode.get(getNumberOfLines()-1).isLocked())
-				return false;
-		}
-		else if(this.linesOfCode.get(caretLine-2).isLocked()||this.linesOfCode.get(caretLine+2).isLocked())
-			return false;
-		for(int i=-2;i<3;i++) {
-			if(caretLine+i >= 0 && caretLine+i < numberOfLines) {
-				this.linesOfCode.get(caretLine+i).setLocked(true);
-				lockednumber++;
-			}}
-		try {
-			//TODO lock request from server
-		}
-		catch (Exception e){
-			unLock(caretLine);
-			System.out.println(e.getMessage());
-			return false;
-		}
-		return true;
-		
 	}
 	
 	public void unLock(int caretLine) {
-		for(int i=-2;i<3;i++)
-			if(caretLine+i >= 0 && caretLine+i < numberOfLines) {
-				this.linesOfCode.get(caretLine+i).setLocked(false);
-			}
-		lockednumber = 0;
 	}
 
 

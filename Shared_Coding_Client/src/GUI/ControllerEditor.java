@@ -272,7 +272,7 @@ public class ControllerEditor {
 		        
 		        
 		        Scene editCodeScene = new Scene(pane,this.editorStage.getX()+this.editorStage.getWidth()/2,200);
-		        editCodeScene.getStylesheets().add("LayoutEditor.css");
+		        editCodeScene.getStylesheets().add("GUI/LayoutEditor.css");
 		        addCodeStage.setScene(editCodeScene);
 		        addCodeStage.setTitle("edit code");
 		        addCodeStage.setResizable(false);
