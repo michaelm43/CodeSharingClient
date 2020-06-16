@@ -164,9 +164,29 @@ public class Project {
 	}
 	
 	public boolean Lock(int caretLine) {
+		int start = get2LinesUpFromCaret(caretLine);
+		int end = get2LinesUpFromCaret(caretLine);
+		
+		
+		//TODO check if we want to open in the middle!! 
+		if(this.linesOfCode.get(start).isLocked() || this.linesOfCode.get(end).isLocked())
+			return false;
+		else 
+			for(int i = start; i< end; i++) {
+				this.linesOfCode.get(i).setLocked(true);
+				this.lockednumber++;
+			}
+		return true;
 	}
 	
 	public void unLock(int caretLine) {
+		int start = get2LinesUpFromCaret(caretLine);
+		int end = get2LinesUpFromCaret(caretLine);
+		
+		for(int i=start; i<end;i++) {
+			this.linesOfCode.get(i).setLocked(false);
+			this.lockednumber--;
+		}
 	}
 
 
