@@ -194,29 +194,28 @@ public class Project {
 		
 		String [] stringArr = text.split("\n");
 		int length = stringArr.length;
-		int start = 0;;
+		int start = get2LinesUpFromCaret(caretLine);
+		int end = get2LinesUpFromCaret(caretLine);
+		
 		List<Line> newText = new LinkedList<>();
 		
 		/*
 		 * check what is the first elem
 		 */
-		if(caretLine >= 2) {
-			start = caretLine - 2;
-		}
 		
 		/*
 		 * delete locked lines - not relevant cause they changed
 		 */
-		for(int i=0;i<this.lockednumber;i++) {
-			linesOfCode.remove(i+start);
+		for(int i=start ; i<end ; i++) {
+			linesOfCode.remove(i);
 		}
 		
 		/*
 		 * add all new lines (and the locked lines) to the list
 		 */
-		for(int i=0 ; i<length;i++) {
-			Line tempLine = new Line(stringArr[i],start+i);
-			linesOfCode.add(start+i, tempLine);
+		for(int i=start, j=0 ; i < length+end ; i++,j++) {
+			Line tempLine = new Line(stringArr[j],i);
+			linesOfCode.add(i, tempLine);
 			newText.add(tempLine);
 		}
 		
@@ -227,7 +226,6 @@ public class Project {
 			linesOfCode.get(i).setNumber(i);
 		}
 		
-		System.out.println(this.toString());
 		return newText;
 	}
 	

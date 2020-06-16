@@ -341,7 +341,8 @@ public class ControllerEditor {
 		this.proj.unLock(this.caretLine);
     	this.codeArea.clear();
     	this.codeArea.replaceText(0,0,this.proj.toString());
-		//codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
+		
+    	//codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
     	
     	//update server
     	//fix conflicts
