@@ -223,7 +223,8 @@ public class ControllerEditor {
 				createEditWindow();
 				this.editCode.replaceText(0, 0, this.proj.toString(this.caretLine));
 			}
-			//TODO invoke action to lock lines in db!
+			//invoke action to lock lines in db! TODO CHECK THIS
+			new ActionRequest().lockLines(user, proj, proj.get2LinesUpFromCaret(caretLine), proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine));
 	}
 
 
@@ -337,14 +338,16 @@ public class ControllerEditor {
 	public void sendNewCode() {
 		List<Line> list = new LinkedList<>();
 		addCodeStage.close();
-		this.proj.setText(this.caretLine,editCode.getText());
+		this.proj.setText(this.caretLine,editCode.getText());// CODE IN /*
 		this.proj.unLock(this.caretLine);
+		new ActionRequest().unlockLines(user, proj, proj.get2LinesUpFromCaret(caretLine), proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine)); // TODO CHECK IF ITS NECESSERY
     	this.codeArea.clear();
     	this.codeArea.replaceText(0,0,this.proj.toString());
 		
     	//codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
     	
     	//update server
+    	new ActionRequest().editCode(user, proj);
     	//fix conflicts
 	}
 	@FXML 
@@ -364,9 +367,7 @@ public class ControllerEditor {
 		}
 	}
 	
-	@FXML
-	public void onRun() throws IOException {
-		txtConsole.setVisible(true);
+	public boolean runProgram() throws IOException {
 		try {
 			Compiler compiler = new Compiler();
 			compiler.compile(proj.toString(), proj.getName());
@@ -374,14 +375,25 @@ public class ControllerEditor {
 				Run c = new Run(proj, txtConsole);
 				Thread t = new Thread(c, "compile");
 				t.start();
+				return true;
 			}
 
-			else
+			else {
 				txtConsole.setText("" + compiler.getCompilerErrorOutput());
+				return false;
+			}
 
 		} catch (Exception e) {
 			txtConsole.setText("" + e);
 		}
+		return false;
+
+	}
+	
+	@FXML
+	public void onRun() throws IOException {
+		txtConsole.setVisible(true);
+		runProgram();
 	}
 	
 	public Stage getStage() {
