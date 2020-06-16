@@ -19,10 +19,12 @@ public class ControllerOpenFile {
 	private Project proj;
 	private final Stage openFileStage;
 	private final Stage editorStage;
+	private final Stage newFileStage;
 	
-	public ControllerOpenFile(User user,Stage editorStage) {
+	public ControllerOpenFile(User user,Stage editorStage,Stage newFileStage) {
 		this.openFileStage = new Stage();
 		this.editorStage = editorStage;
+		this.newFileStage = newFileStage;
 			
 		this.user = user;
 		
@@ -59,9 +61,11 @@ public class ControllerOpenFile {
 		
 		proj = new ElementRequest().openExistingFile(user,fileKey);
 		if(proj != null) {
-			openFileStage.close();
 			//TODO add to active Users
 			ControllerEditor editorController = new ControllerEditor(user, proj,this.editorStage);
+			this.openFileStage.close();
+			if(this.newFileStage!=null)
+				this.newFileStage.close();
 			editorController.showStage();
 		}
 	}

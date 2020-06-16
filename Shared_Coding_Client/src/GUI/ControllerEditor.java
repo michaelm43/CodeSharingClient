@@ -151,7 +151,7 @@ public class ControllerEditor {
 
 			// Setup the window/stage
 			editorStage
-					.setTitle(this.proj.getName().concat("_").concat(this.proj.getCreator()));
+					.setTitle(this.proj.getName().concat("-").concat(this.proj.getCreator()));
 			
 			initCodeArea();
 			borderPane.setCenter(new VirtualizedScrollPane<>(codeArea));
@@ -176,7 +176,7 @@ public class ControllerEditor {
 		
 		//add line numbers to the left of code area
 		codeArea.setParagraphGraphicFactory(LineNumberFactory.get(codeArea));
-				
+		
 		// recompute the syntax highlighting 500 ms after user stops editing
 		Subscription cleanupWhenNoLongerNeedIt  = codeArea
 				// plain changes = ignore style changes that are emitted when syntax highlighting is reapplied
@@ -337,7 +337,7 @@ public class ControllerEditor {
 	public void sendNewCode() {
 		List<Line> list = new LinkedList<>();
 		addCodeStage.close();
-		list = this.proj.setText(this.caretLine,editCode.getText());
+		this.proj.setText(this.caretLine,editCode.getText());
 		this.proj.unLock(this.caretLine);
     	this.codeArea.clear();
     	this.codeArea.replaceText(0,0,this.proj.toString());
@@ -400,7 +400,7 @@ public class ControllerEditor {
 	public void openFile() throws IOException{
 		Stage openFileStage = new Stage();
 		
-		new ControllerOpenFile(user, this.editorStage).showStage();;
+		new ControllerOpenFile(user, this.editorStage,null).showStage();;
 		
 	}
 	

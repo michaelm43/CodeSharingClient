@@ -155,24 +155,27 @@ public class Project {
 			return 0;
 	}
 	
-	public int get2LinesDownfromCaret(int caretLine) {
+	public int get2LinesDownFromCaret(int caretLine) {
 		if(caretLine < this.numberOfLines-2)
 			return caretLine+2;
-		else 
-			return this.numberOfLines-1;
+		else if(caretLine >= this.lockednumber)
+			return caretLine-1;
+		else  
+			return caretLine;
 
 	}
 	
 	public boolean Lock(int caretLine) {
 		int start = get2LinesUpFromCaret(caretLine);
-		int end = get2LinesUpFromCaret(caretLine);
+		int end = get2LinesDownFromCaret(caretLine);
 		
 		
 		//TODO check if we want to open in the middle!! 
-		if(this.linesOfCode.get(start).isLocked() || this.linesOfCode.get(end).isLocked())
+		if(this.linesOfCode.get(start).isLocked() || this.linesOfCode.get(end).isLocked()) {
 			return false;
+		}
 		else 
-			for(int i = start; i< end; i++) {
+			for(int i = start; i <= end; i++) {
 				this.linesOfCode.get(i).setLocked(true);
 				this.lockednumber++;
 			}
@@ -181,23 +184,23 @@ public class Project {
 	
 	public void unLock(int caretLine) {
 		int start = get2LinesUpFromCaret(caretLine);
-		int end = get2LinesUpFromCaret(caretLine);
+		int end = get2LinesDownFromCaret(caretLine);
 		
-		for(int i=start; i<end;i++) {
+		for(int i=start; i <= end ; i++) {
 			this.linesOfCode.get(i).setLocked(false);
 			this.lockednumber--;
 		}
 	}
 
 
-	public List<Line> setText(int caretLine, String text) {
+	public void setText(int caretLine, String text) {
 		
 		String [] stringArr = text.split("\n");
 		int length = stringArr.length;
 		int start = get2LinesUpFromCaret(caretLine);
-		int end = get2LinesUpFromCaret(caretLine);
+		int end = get2LinesDownFromCaret(caretLine);
 		
-		List<Line> newText = new LinkedList<>();
+//		List<Line> newText = new LinkedList<>();
 		
 		/*
 		 * check what is the first elem
@@ -206,17 +209,16 @@ public class Project {
 		/*
 		 * delete locked lines - not relevant cause they changed
 		 */
-		for(int i=start ; i<end ; i++) {
-			linesOfCode.remove(i);
+		for(int i = 0 ; i < this.lockednumber ; i++) {
+			this.linesOfCode.remove(start);
 		}
 		
 		/*
 		 * add all new lines (and the locked lines) to the list
 		 */
-		for(int i=start, j=0 ; i < length+end ; i++,j++) {
+		for(int i=start, j=0 ; i < length+start ; i++,j++) {
 			Line tempLine = new Line(stringArr[j],i);
 			linesOfCode.add(i, tempLine);
-			newText.add(tempLine);
 		}
 		
 		/*
@@ -225,8 +227,6 @@ public class Project {
 		for(int i = length+start; i <linesOfCode.size();i++) {
 			linesOfCode.get(i).setNumber(i);
 		}
-		
-		return newText;
 	}
 	
 	public String getKey() {

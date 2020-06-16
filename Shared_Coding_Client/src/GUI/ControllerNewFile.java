@@ -84,7 +84,7 @@ public class ControllerNewFile {
 	 */
 	@FXML
 	public void OpenPageAction() throws IOException {
-		ControllerOpenFile openfileController = new ControllerOpenFile(user,this.editorStage);
+		ControllerOpenFile openfileController = new ControllerOpenFile(user,this.editorStage,this.newFileStage);
 		openfileController.showStage();
 	}
 }
