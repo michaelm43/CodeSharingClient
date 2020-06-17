@@ -80,6 +80,7 @@ public class UserRequests {
 	 */
 	public User loginUser(User user) {
 		User tempUser = null;
+		boolean isExist = false;
 		try {
 			URL url = new URL(baseUrl + "/users/login/" + user.getEmail() + "/" + user.getPassword());
 			
@@ -100,6 +101,7 @@ public class UserRequests {
 			//creates a reader buffer
 			if (responseCode >199 && responseCode<300) {
 				bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+				isExist = true;
 			}
 			else {
 				bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getErrorStream()));
@@ -114,16 +116,17 @@ public class UserRequests {
 			
 			System.out.println(content.toString());
 			
-			Gson gson = new Gson();
-			tempUser = gson.fromJson(content.toString(), User.class);
-			System.out.println("line 111 - project = " + tempUser.getProjectList());
-		
+			if(isExist) {
+				Gson gson = new Gson();
+				tempUser = gson.fromJson(content.toString(), User.class);
+			}
 		} catch (Exception e) {
 			
 			System.out.println("Error Message");
 			System.out.println(e.getClass().getSimpleName());
 			System.out.println(e.getMessage());
 		}
+		
 		return tempUser;
 }
 	

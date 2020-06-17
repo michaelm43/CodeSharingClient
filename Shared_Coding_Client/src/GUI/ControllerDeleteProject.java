@@ -12,6 +12,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -19,7 +20,7 @@ import javafx.stage.Stage;
 public class ControllerDeleteProject {
 
 	private Stage deleteProjectStage;
-	private List<CheckBox> checkBoxFiles;
+	private List<RadioButton> radioButtonFiles;
 	private User user;
 	private ControllerEditor controllerEditor;
 	
@@ -33,9 +34,9 @@ public class ControllerDeleteProject {
 		this.controllerEditor = controllerEditor;
 		this.vboxCheckList = new VBox();
 		
-		this.checkBoxFiles= new ArrayList<>();
+		this.radioButtonFiles= new ArrayList<>();
 		for(int i = 0; i < user.getProjectList().size(); i++) 
-			checkBoxFiles.add(new CheckBox(user.getProjectList().get(i)));
+			radioButtonFiles.add(new RadioButton(user.getProjectList().get(i)));
 
 		
 		// Load the FXML file
@@ -55,7 +56,7 @@ public class ControllerDeleteProject {
             e.printStackTrace();
         }
         
-		this.vboxCheckList.getChildren().addAll(checkBoxFiles);
+		this.vboxCheckList.getChildren().addAll(radioButtonFiles);
 		deleteProjectStage.initModality(Modality.APPLICATION_MODAL);
 		deleteProjectStage.setResizable(false);
 	}
@@ -68,12 +69,12 @@ public class ControllerDeleteProject {
 	@FXML
 	public void deleteFiles() throws IOException {
 		if(ConfirmBox.display("WARNING", "are you sure you want to delete selected project?!?")) {
-			for(int i=0;i<checkBoxFiles.size();i++)
-				if(checkBoxFiles.get(i).isSelected()) {
-					this.user.removeProject(checkBoxFiles.get(i).getText());
+			for(int i=0;i<radioButtonFiles.size();i++)
+				if(radioButtonFiles.get(i).isSelected()) {
+					this.user.removeProject(radioButtonFiles.get(i).getText());
 					new ActionRequest().deleteProject(user, controllerEditor.getProj());
 					this.controllerEditor.setUser(user);
-					if(checkBoxFiles.get(i).getText().equals(this.controllerEditor.getProj().getKey()))
+					if(radioButtonFiles.get(i).getText().equals(this.controllerEditor.getProj().getKey()))
 						this.controllerEditor.setDeleted(true);
 				}
 			this.deleteProjectStage.close();

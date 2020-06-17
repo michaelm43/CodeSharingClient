@@ -79,7 +79,6 @@ public class ControllerNewFile {
 	/*
 	 * New File -> Open File
 	 * user want to open an existing file
-	 * TODO fixed no proj to show
 	 */
 	@FXML
 	public void OpenPageAction() throws IOException {

@@ -220,7 +220,7 @@ public class ControllerEditor {
 				createEditWindow();
 				this.editCode.replaceText(0, 0, this.proj.toString(this.caretLine));
 			}
-			//invoke action to lock lines in db! TODO CHECK THIS
+			//invoke action to lock lines in db! TODO CHECK IF LOCKS WORK
 			//new ActionRequest().lockLines(user, proj, proj.get2LinesUpFromCaret(caretLine), proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine));
 	}
 
@@ -329,15 +329,14 @@ public class ControllerEditor {
 		Boolean isExit = ConfirmBox.display(title, msg);
 		if (isExit)
 			editorStage.close();
-		//TODO delete user from active Users
+		//TODO shay: delete user from active Users (LOGOUT)
 	}
 	
 	public void sendNewCode() {
 		addCodeStage.close();
 		this.proj.setText(this.caretLine,editCode.getText());// CODE IN /*
 		this.proj.unLock(this.caretLine, this.user);
-		//new ActionRequest().unlockLines(this.user, this.proj, this.proj.get2LinesUpFromCaret(caretLine), this.proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine)); // TODO CHECK IF ITS NECESSERY
-    	this.codeArea.clear();
+		this.codeArea.clear();
     	this.codeArea.replaceText(0,0,this.proj.toString());
 		
     	//codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
@@ -348,7 +347,6 @@ public class ControllerEditor {
 	}
 	@FXML 
 	public void addUser() throws IOException{
-		//TODO SHAY
 		String email = AddUserBox.display();
 		if(email.isEmpty()) {
 			//Cancel button pushed or email field is empty

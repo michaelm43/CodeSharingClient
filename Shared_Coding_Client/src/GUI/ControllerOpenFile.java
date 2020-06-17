@@ -60,7 +60,7 @@ public class ControllerOpenFile {
 		
 		proj = new ElementRequest().openExistingFile(user,fileKey);
 		if(proj != null) {
-			//TODO add to active Users
+			//TODO shay: add to active Users (LOGIN) 
 			ControllerEditor editorController = new ControllerEditor(user, proj,this.editorStage);
 			this.openFileStage.close();
 			if(this.newFileStage!=null)

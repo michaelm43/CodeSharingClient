@@ -56,10 +56,9 @@ public class ControllerRegister {
 	/*
 	 * Register -> Login
 	 * 2 cases:
-	 * TODO 1) user field all the information correctly and pushed register. 
-	 * TODO		update data base with new user.
-	 * TODO 2) user dont want to register and pushed cancel button.
-	 * 
+	 *  user filled all the information correctly and pushed register. 		
+	 *  update data base with new user. 
+	 *  user dont want to register and pushed cancel button.
 	 */
 	@FXML
 	public void loginPageAction() throws IOException {

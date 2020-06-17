@@ -173,7 +173,6 @@ public class Project {
 		
 		
 		/*
-		//TODO check if we want to open in the middle!! 
 		if(this.linesOfCode.get(start).isLocked() || this.linesOfCode.get(end).isLocked()) {
 			return false;
 		}
