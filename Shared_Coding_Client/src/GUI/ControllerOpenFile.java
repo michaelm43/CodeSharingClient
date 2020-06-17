@@ -44,11 +44,10 @@ public class ControllerOpenFile {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        cbFileNames.getItems().addAll(this.user.getProjectList());
-        //set the first project in list
-        if(!this.user.getProjectList().isEmpty())
-        	cbFileNames.setValue(this.user.getProjectList().get(0));
+        	cbFileNames.getItems().addAll(this.user.getProjectList());
+        	//set the first project in list	
+        	if(!this.user.getProjectList().isEmpty())
+        		cbFileNames.setValue(this.user.getProjectList().get(0));
 	}
 	
 	public void showStage() {

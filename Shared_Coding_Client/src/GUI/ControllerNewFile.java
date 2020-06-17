@@ -51,7 +51,6 @@ public class ControllerNewFile {
 	 * New File -> Editor
 	 * open a new file with the file name.
 	 * default name "Application"
-	 * TODO update database
 	 */
 	@FXML
 	public void NewFileAction() throws IOException {
@@ -80,11 +79,17 @@ public class ControllerNewFile {
 	/*
 	 * New File -> Open File
 	 * user want to open an existing file
-	 * TODO upload relevant file names (by user permisions) and show them as a list to the user
+	 * TODO fixed no proj to show
 	 */
 	@FXML
 	public void OpenPageAction() throws IOException {
-		ControllerOpenFile openfileController = new ControllerOpenFile(user,this.editorStage,this.newFileStage);
-		openfileController.showStage();
+		if(user.getProjectList().isEmpty()) {
+			lblErrorMessage.setText("No files to open");
+			lblErrorMessage.setVisible(true);
+		}
+		else {
+			ControllerOpenFile openfileController = new ControllerOpenFile(user,this.editorStage,this.newFileStage);
+			openfileController.showStage();
+		}
 	}
 }

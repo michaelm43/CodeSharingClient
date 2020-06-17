@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import HttpRequests.ActionRequest;
 import HttpRequests.UserRequests;
 import Logic.User;
 import javafx.fxml.FXML;
@@ -61,17 +62,20 @@ public class ControllerDeleteProject {
 	 
 	
 	public void showStage() {
-		this.deleteProjectStage.show();
+		this.deleteProjectStage.showAndWait();
 	}
 	
 	@FXML
 	public void deleteFiles() throws IOException {
 		if(ConfirmBox.display("WARNING", "are you sure you want to delete selected project?!?")) {
 			for(int i=0;i<checkBoxFiles.size();i++)
-				if(checkBoxFiles.get(i).isSelected())
+				if(checkBoxFiles.get(i).isSelected()) {
 					this.user.removeProject(checkBoxFiles.get(i).getText());
-			new UserRequests().editUser(user);
-			this.controllerEditor.setUser(user);
+					new ActionRequest().deleteProject(user, controllerEditor.getProj());
+					this.controllerEditor.setUser(user);
+					if(checkBoxFiles.get(i).getText().equals(this.controllerEditor.getProj().getKey()))
+						this.controllerEditor.setDeleted(true);
+				}
 			this.deleteProjectStage.close();
 		}
 	}

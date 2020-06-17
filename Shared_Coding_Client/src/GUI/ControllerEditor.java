@@ -23,8 +23,6 @@ import HttpRequests.ActionRequest;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,11 +111,11 @@ public class ControllerEditor {
 	@FXML
 	private BorderPane borderPane;
 
-	private int flag;
-	
 	private int caretLine;
 	
 	private Stage addCodeStage;
+	
+	private boolean isDeleted = false;
 	
 	
 	public ControllerEditor(User user, Project proj, Stage stage) {
@@ -169,7 +167,6 @@ public class ControllerEditor {
 		Runtime rt = Runtime.getRuntime();
 		Shutdown sd = new Shutdown();
 		rt.addShutdownHook(new Thread(sd));
-		flag = 0;
 	}
 
 	private void initCodeArea() {
@@ -218,13 +215,13 @@ public class ControllerEditor {
 			this.caretLine = codeArea.getCurrentParagraph();
 		
 			//check if not already locked, if not make the locks
-			if(this.proj.Lock(caretLine)) {
+			if(this.proj.Lock(this.caretLine, this.user)) {
 				this.editCode.clear();
 				createEditWindow();
 				this.editCode.replaceText(0, 0, this.proj.toString(this.caretLine));
 			}
 			//invoke action to lock lines in db! TODO CHECK THIS
-			new ActionRequest().lockLines(user, proj, proj.get2LinesUpFromCaret(caretLine), proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine));
+			//new ActionRequest().lockLines(user, proj, proj.get2LinesUpFromCaret(caretLine), proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine));
 	}
 
 
@@ -336,11 +333,10 @@ public class ControllerEditor {
 	}
 	
 	public void sendNewCode() {
-		List<Line> list = new LinkedList<>();
 		addCodeStage.close();
 		this.proj.setText(this.caretLine,editCode.getText());// CODE IN /*
-		this.proj.unLock(this.caretLine);
-		new ActionRequest().unlockLines(user, proj, proj.get2LinesUpFromCaret(caretLine), proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine)); // TODO CHECK IF ITS NECESSERY
+		this.proj.unLock(this.caretLine, this.user);
+		//new ActionRequest().unlockLines(this.user, this.proj, this.proj.get2LinesUpFromCaret(caretLine), this.proj.get2LinesDownFromCaret(caretLine) - proj.get2LinesUpFromCaret(caretLine)); // TODO CHECK IF ITS NECESSERY
     	this.codeArea.clear();
     	this.codeArea.replaceText(0,0,this.proj.toString());
 		
@@ -402,6 +398,10 @@ public class ControllerEditor {
 	
 	@FXML 
 	public void newFile() throws IOException{
+		newFileFunc();
+	}
+	
+	public void newFileFunc() throws IOException {
 		Stage newFileStage = new Stage();
 		
 		new ControllerNewFile(newFileStage, user, this.editorStage);
@@ -410,8 +410,6 @@ public class ControllerEditor {
 	
 	@FXML
 	public void openFile() throws IOException{
-		Stage openFileStage = new Stage();
-		
 		new ControllerOpenFile(user, this.editorStage,null).showStage();;
 		
 	}
@@ -436,9 +434,32 @@ public class ControllerEditor {
 	@FXML
 	public void deleteProject() throws IOException {
 		new ControllerDeleteProject(this, user).showStage();
+		if(this.isDeleted) {
+			this.editorStage.close();
+			newFileFunc();
+			this.isDeleted = false;
+		}
 	}
 
+	@FXML
+	public void help() throws IOException {
+		new ControllerHelp().showStage();
+	}
+	
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+	public Project getProj() {
+		return proj;
+	}
+
+	public boolean isDeleted() {
+		return isDeleted;
+	}
+
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+	
 }

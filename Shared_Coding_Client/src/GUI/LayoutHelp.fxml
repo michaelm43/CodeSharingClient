@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
+
+<Accordion maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.1">
+  <panes>
+    <TitledPane animated="false" text="Overall explanation">
+         <content>
+            <TextArea fx:id="txtOverall" editable="false" prefHeight="200.0" prefWidth="200.0" />
+         </content>
+    </TitledPane>
+    <TitledPane animated="false" text="how does it work">
+         <content>
+            <TextArea fx:id="txtHowWorks" editable="false" prefHeight="200.0" prefWidth="200.0"/>
+         </content>
+    </TitledPane>
+    <TitledPane animated="false" text="how to use the application">
+         <content>
+            <TextArea fx:id="txtUsingApp" editable="false" prefHeight="200.0" prefWidth="200.0" />
+         </content>
+    </TitledPane>
+  </panes>
+</Accordion>

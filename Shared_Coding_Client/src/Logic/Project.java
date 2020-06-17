@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import HttpRequests.ActionRequest;
+
 public class Project {
 	private String name;
 	private String creator;
@@ -165,11 +167,12 @@ public class Project {
 
 	}
 	
-	public boolean Lock(int caretLine) {
+	public boolean Lock(int caretLine, User user) {
 		int start = get2LinesUpFromCaret(caretLine);
 		int end = get2LinesDownFromCaret(caretLine);
 		
 		
+		/*
 		//TODO check if we want to open in the middle!! 
 		if(this.linesOfCode.get(start).isLocked() || this.linesOfCode.get(end).isLocked()) {
 			return false;
@@ -178,18 +181,26 @@ public class Project {
 			for(int i = start; i <= end; i++) {
 				this.linesOfCode.get(i).setLocked(true);
 				this.lockednumber++;
-			}
-		return true;
+			}*/
+		System.out.println("LOCK");
+		System.out.println(start);
+		System.out.println(end-start+1);
+		return new ActionRequest().lockLines(user, this, start, end-start+1);
+
 	}
 	
-	public void unLock(int caretLine) {
+	public boolean unLock(int caretLine, User user) {
 		int start = get2LinesUpFromCaret(caretLine);
 		int end = get2LinesDownFromCaret(caretLine);
 		
-		for(int i=start; i <= end ; i++) {
+		/*for(int i=start; i <= end ; i++) {
 			this.linesOfCode.get(i).setLocked(false);
 			this.lockednumber--;
-		}
+		}*/
+		System.out.println("UNLOCK");
+		System.out.println(start);
+		System.out.println(end-start+1);
+		return new ActionRequest().unlockLines(user, this, start, end-start+1);
 	}
 
 
@@ -199,17 +210,14 @@ public class Project {
 		int length = stringArr.length;
 		int start = get2LinesUpFromCaret(caretLine);
 		int end = get2LinesDownFromCaret(caretLine);
-		
-//		List<Line> newText = new LinkedList<>();
-		
-		/*
-		 * check what is the first elem
-		 */
-		
+				
 		/*
 		 * delete locked lines - not relevant cause they changed
 		 */
-		for(int i = 0 ; i < this.lockednumber ; i++) {
+		System.out.println("DELETE");
+		System.out.println(start);
+		System.out.println(end-start+1);
+		for(int i = 0 ; i <= (end - start); i++) {
 			this.linesOfCode.remove(start);
 		}
 		

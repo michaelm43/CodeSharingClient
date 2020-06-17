@@ -57,7 +57,6 @@ public class ControllerPassword {
 	
 	@FXML
 	public void changePassword(){
-		//TODO update server
 		new ControllerRegister();
 
 		if(user.getPassword().equals(txtOldPassword.getText())) {
