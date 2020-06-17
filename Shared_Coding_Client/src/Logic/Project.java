@@ -14,7 +14,7 @@ public class Project {
 	private String creator;
 	private int numberOfLines;
 	private List<String> users;
-	private Map<String,ActiveUser> activeUsers;
+	private List<ActiveUser> activeUsers;
 	private List<Line> linesOfCode;
 	//TODO do we need lastEdited
 	
@@ -46,10 +46,10 @@ public class Project {
 		
 		this.linesOfCode = new LinkedList<>();
 		this.users = new ArrayList<String>();
-		this.activeUsers = new HashMap<String,ActiveUser>();
+		this.activeUsers = new ArrayList<ActiveUser>();
 		
 		this.users.add(creator);
-		this.activeUsers.put(creator,new ActiveUser(creator,false,-1));
+		this.activeUsers.add(new ActiveUser(creator,false,-1));
 		
 		this.linesOfCode = initCode;
 		this.numberOfLines = initCode.size();
@@ -99,11 +99,11 @@ public class Project {
 		this.users = users;
 	}
 
-	public Map<String,ActiveUser> getActiveUsers() {
+	public List<ActiveUser> getActiveUsers() {
 		return activeUsers;
 	}
 
-	public void setActiveUsers(Map<String,ActiveUser> activeUsers) {
+	public void setActiveUsers(List<ActiveUser> activeUsers) {
 		this.activeUsers = activeUsers;
 	}
 
