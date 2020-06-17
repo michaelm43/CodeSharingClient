@@ -14,6 +14,7 @@ public class Project {
 	private List<String> users;
 	private List<String> activeUsers;
 	private List<Line> linesOfCode;
+	//TODO do we need lastEdited
 	
 	//to check how many lines were changed
 	private int lockednumber = 0;
@@ -213,9 +214,6 @@ public class Project {
 		/*
 		 * delete locked lines - not relevant cause they changed
 		 */
-		System.out.println("DELETE");
-		System.out.println(start);
-		System.out.println(end-start+1);
 		for(int i = 0 ; i <= (end - start); i++) {
 			this.linesOfCode.remove(start);
 		}
@@ -234,6 +232,7 @@ public class Project {
 		for(int i = length+start; i <linesOfCode.size();i++) {
 			linesOfCode.get(i).setNumber(i);
 		}
+		
 	}
 	
 	public String getKey() {

@@ -194,15 +194,18 @@ public class ActionRequest {
 		return isRegistered;
 	}
 	
-	public boolean editCode(User user, Project proj) {
+	public Project editCode(User user, Project proj,String txt,int start,int end) {
 		boolean isRegistered = false;
+		Project newProj = null;
 		try {
 			
 			URL url = new URL(baseUrl + "actions");
 			
 			Action action = new Action("edit-code", proj.getCreator(), proj.getName(), user.getEmail());
 			
-			action.getProperties().put("code", proj.getLinesOfCode());
+			action.getProperties().put("code", txt);
+			action.getProperties().put("start", start);
+			action.getProperties().put("end", end);
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
@@ -239,6 +242,10 @@ public class ActionRequest {
 				content.append(line).append("\n");
 			bufferReader.close();
 			
+			if(isRegistered) {
+				newProj = gson.fromJson(content.toString(), Project.class);
+			}
+			
 			System.out.println(content.toString());
 			
 		
@@ -248,7 +255,7 @@ public class ActionRequest {
 			System.out.println(e.getClass().getSimpleName());
 			System.out.println(e.getMessage());
 		}
-		return isRegistered;
+		return newProj;
 	}
 
 	public boolean deleteProject(User user, Project proj) {

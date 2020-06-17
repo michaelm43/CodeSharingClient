@@ -311,12 +311,15 @@ public class ControllerEditor {
 		this.proj.setText(this.caretLine, editCode.getText());// CODE IN /*
 		this.proj.unLock(this.caretLine, this.user);
 		this.codeArea.clear();
-		this.codeArea.replaceText(0, 0, this.proj.toString());
 
 		// codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
 
 		// update server
-		new ActionRequest().editCode(user, proj);
+		Project tempProj = new ActionRequest().editCode(user, proj,editCode.getText(),proj.get2LinesUpFromCaret(caretLine),proj.get2LinesDownFromCaret(caretLine));
+		if(tempProj != null) {
+			this.proj = new Project(tempProj);
+			this.codeArea.replaceText(0, 0, this.proj.toString());
+		}
 		// fix conflicts
 	}
 
