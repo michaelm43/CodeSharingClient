@@ -136,7 +136,7 @@ public class ActionRequest {
 		return isRegistered;
 	}
 
-	public boolean unlockLines(User user, Project proj, int start, int count) {
+	public boolean unlockLines(User user, Project proj, int length) {
 		boolean isRegistered = false;
 		try {
 			
@@ -144,8 +144,7 @@ public class ActionRequest {
 			
 			Action action = new Action("unlock", proj.getCreator(), proj.getName(), user.getEmail());
 			
-			action.getProperties().put("start", start);
-			action.getProperties().put("count", count);
+			action.getProperties().put("length", length);
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 

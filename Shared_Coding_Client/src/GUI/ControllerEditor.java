@@ -318,7 +318,7 @@ public class ControllerEditor {
 		if(tempProj != null) {
 			this.proj = new Project(tempProj);
 			this.codeArea.replaceText(0, 0, this.proj.toString());
-			this.proj.unLock(this.caretLine, this.user);
+			this.proj.unLock(this.user,editCode.getText().split("\n").length);
 		}
 		// fix conflicts
 	}

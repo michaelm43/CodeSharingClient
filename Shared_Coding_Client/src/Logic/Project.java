@@ -189,18 +189,14 @@ public class Project {
 
 	}
 	
-	public boolean unLock(int caretLine, User user) {
-		int start = get2LinesUpFromCaret(caretLine);
-		int end = get2LinesDownFromCaret(caretLine);
+	public boolean unLock(User user,int length) {
 		
 		/*for(int i=start; i <= end ; i++) {
 			this.linesOfCode.get(i).setLocked(false);
 			this.lockednumber--;
 		}*/
-		System.out.println("UNLOCK");
-		System.out.println(start);
-		System.out.println(end-start+1);
-		return new ActionRequest().unlockLines(user, this, start, end-start+1);
+		
+		return new ActionRequest().unlockLines(user, this, length);
 	}
 
 
