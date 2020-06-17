@@ -300,9 +300,10 @@ public class ControllerEditor {
 	 */
 	public void popUpMessage(String title, String msg) {
 		Boolean isExit = ConfirmBox.display(title, msg);
-		if (isExit)
+		if (isExit) {
 			editorStage.close();
-		// TODO shay: delete user from active Users (LOGOUT)
+			new ActionRequest().logoutProject(this.user, this.proj);
+		}
 	}
 
 	public void sendNewCode() {
@@ -381,7 +382,6 @@ public class ControllerEditor {
 
 	public void newFileFunc() throws IOException {
 		Stage newFileStage = new Stage();
-
 		new ControllerNewFile(newFileStage, user, this.editorStage);
 		newFileStage.show();
 	}
@@ -389,15 +389,14 @@ public class ControllerEditor {
 	@FXML
 	public void openFile() throws IOException {
 		new ControllerOpenFile(user, this.editorStage, null).showStage();
-		;
-
+		new ActionRequest().loginProject(this.user, this.proj);
 	}
 
 	@FXML
 	public void logout() throws IOException {
 		Boolean isExit = ConfirmBox.display("Logout", "are you shure you want to logout?");
 		if (isExit) {
-			// TODO update server
+			new ActionRequest().logoutProject(this.user, this.proj);
 			this.editorStage.close();
 
 			new ControllerLogin().showStage();

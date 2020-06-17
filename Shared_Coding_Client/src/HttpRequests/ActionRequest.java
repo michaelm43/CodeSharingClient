@@ -21,7 +21,6 @@ public class ActionRequest {
 	private String baseUrl = "http://" + IP + ":" + PORT + "/";
 	
 	
-	//TODO Shay: fix user is not existed in DB
 	public boolean addNewUser(User user, Project proj, String email) {
 		boolean isRegistered = false;
 		try {

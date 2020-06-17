@@ -2,6 +2,7 @@ package GUI;
 
 import java.io.IOException;
 
+import HttpRequests.ActionRequest;
 import HttpRequests.ElementRequest;
 import Logic.Project;
 import Logic.User;
@@ -60,7 +61,7 @@ public class ControllerOpenFile {
 		
 		proj = new ElementRequest().openExistingFile(user,fileKey);
 		if(proj != null) {
-			//TODO shay: add to active Users (LOGIN) 
+			new ActionRequest().loginProject(this.user, this.proj);
 			ControllerEditor editorController = new ControllerEditor(user, proj,this.editorStage);
 			this.openFileStage.close();
 			if(this.newFileStage!=null)
