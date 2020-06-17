@@ -309,16 +309,16 @@ public class ControllerEditor {
 	public void sendNewCode() {
 		addCodeStage.close();
 		this.proj.setText(this.caretLine, editCode.getText());// CODE IN /*
-		this.proj.unLock(this.caretLine, this.user);
 		this.codeArea.clear();
 
 		// codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
 
 		// update server
-		Project tempProj = new ActionRequest().editCode(user, proj,editCode.getText(),proj.get2LinesUpFromCaret(caretLine),proj.get2LinesDownFromCaret(caretLine));
+		Project tempProj = new ActionRequest().editCode(user, proj,editCode.getText());
 		if(tempProj != null) {
 			this.proj = new Project(tempProj);
 			this.codeArea.replaceText(0, 0, this.proj.toString());
+			this.proj.unLock(this.caretLine, this.user);
 		}
 		// fix conflicts
 	}

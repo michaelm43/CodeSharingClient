@@ -1,11 +1,9 @@
 package Logic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 
 import HttpRequests.ActionRequest;
 
@@ -49,7 +47,7 @@ public class Project {
 		this.activeUsers = new ArrayList<ActiveUser>();
 		
 		this.users.add(creator);
-		this.activeUsers.add(new ActiveUser(creator,false,-1));
+		this.activeUsers.add(new ActiveUser(creator,false,-1,0));
 		
 		this.linesOfCode = initCode;
 		this.numberOfLines = initCode.size();

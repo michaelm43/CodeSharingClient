@@ -194,7 +194,7 @@ public class ActionRequest {
 		return isRegistered;
 	}
 	
-	public Project editCode(User user, Project proj,String txt,int start,int end) {
+	public Project editCode(User user, Project proj,String txt) {
 		boolean isRegistered = false;
 		Project newProj = null;
 		try {
@@ -204,8 +204,6 @@ public class ActionRequest {
 			Action action = new Action("edit-code", proj.getCreator(), proj.getName(), user.getEmail());
 			
 			action.getProperties().put("code", txt);
-			action.getProperties().put("start", start);
-			action.getProperties().put("end", end);
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
