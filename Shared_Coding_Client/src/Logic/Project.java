@@ -12,7 +12,7 @@ public class Project {
 	private String creator;
 	private int numberOfLines;
 	private List<String> users;
-	private List<String> activeUsers;
+	private List<ActiveUser> activeUsers;
 	private List<Line> linesOfCode;
 	//TODO do we need lastEdited
 	
@@ -44,10 +44,10 @@ public class Project {
 		
 		this.linesOfCode = new LinkedList<>();
 		this.users = new ArrayList<String>();
-		this.activeUsers = new ArrayList<String>();
+		this.activeUsers = new ArrayList<ActiveUser>();
 		
 		this.users.add(creator);
-		this.activeUsers.add(creator);
+		this.activeUsers.add(new ActiveUser(creator,false,-1));
 		
 		this.linesOfCode = initCode;
 		this.numberOfLines = initCode.size();
@@ -97,11 +97,11 @@ public class Project {
 		this.users = users;
 	}
 
-	public List<String> getActiveUsers() {
+	public List<ActiveUser> getActiveUsers() {
 		return activeUsers;
 	}
 
-	public void setActiveUsers(List<String> activeUsers) {
+	public void setActiveUsers(List<ActiveUser> activeUsers) {
 		this.activeUsers = activeUsers;
 	}
 
