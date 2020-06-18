@@ -26,14 +26,7 @@ public class Project {
 			new Line("{",4),
 			new Line("System.out.println(100);", 5),
 			new Line("}",6),
-			new Line("}",7),
-			new Line("8",8),
-			new Line("9",9),
-			new Line("10",10),
-			new Line("11",11),
-			new Line("12",12),
-			new Line("13",13),
-			new Line("14",14)
+			new Line("}",7)
 			)); 
 		
 	

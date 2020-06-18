@@ -239,7 +239,12 @@ public class ControllerEditor {
 
 		btnSend = new Button("send");
 		btnSend.setOnAction(e -> {
-			sendNewCode();
+			try {
+				sendNewCode();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 		pane.setBottom(btnSend);
 		BorderPane.setAlignment(btnSend, Pos.CENTER_RIGHT);
@@ -255,7 +260,12 @@ public class ControllerEditor {
 		addCodeStage.setY(200);
 		addCodeStage.setOnCloseRequest(e -> {
 			e.consume();
-			sendNewCode();
+			try {
+				sendNewCode();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 
 		addCodeStage.show();
@@ -306,15 +316,20 @@ public class ControllerEditor {
 		}
 	}
 
-	public void sendNewCode() {
+	public void sendNewCode() throws IOException {
 		addCodeStage.close();
+		Project tempProj = new Project(proj);
+		tempProj.setText(this.caretLine, editCode.getText());
+		String errors = compileProgram(tempProj.toString());
+		if(errors != null) // THERE ARE ERRORS, NOT COMPILING
+			editCode.replaceText("/*" + editCode.getText() + "*/");
 		this.proj.setText(this.caretLine, editCode.getText());// TODO CODE IN /*
 		this.codeArea.clear();
 
 		// codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
 
 		// update server
-		Project tempProj = new ActionRequest().editCode(user, proj,editCode.getText());
+		tempProj = new ActionRequest().editCode(user, proj,editCode.getText());
 		if(tempProj != null) {
 			this.proj = new Project(tempProj);
 			this.codeArea.replaceText(0, 0, this.proj.toString());
@@ -345,33 +360,29 @@ public class ControllerEditor {
 		alert.showAndWait();
 	}
 
-	public boolean runProgram() throws IOException {
+	public String compileProgram(String code) throws IOException {
 		try {
 			Compiler compiler = new Compiler();
-			compiler.compile(proj.toString(), proj.getName());
-			if (compiler.getCompilerErrorOutput() == null) { // RUN THE PROGRAM
-				Run c = new Run(proj, txtConsole);
-				Thread t = new Thread(c, "compile");
-				t.start();
-				return true;
-			}
-
-			else {
-				txtConsole.setText("" + compiler.getCompilerErrorOutput());
-				return false;
-			}
-
+			compiler.compile(code, proj.getName());
+			return compiler.getCompilerErrorOutput();
 		} catch (Exception e) {
 			txtConsole.setText("" + e);
+			return "error";
 		}
-		return false;
-
 	}
 
 	@FXML
 	public void onRun() throws IOException {
 		txtConsole.setVisible(true);
-		runProgram();
+		String errors = compileProgram(proj.toString());
+		if (errors == null) { // RUN THE PROGRAM
+			Run c = new Run(proj, txtConsole);
+			Thread t = new Thread(c, "compile");
+			t.start();
+		}
+		else {
+			txtConsole.setText("" + errors);
+		}
 	}
 
 	public Stage getStage() {
