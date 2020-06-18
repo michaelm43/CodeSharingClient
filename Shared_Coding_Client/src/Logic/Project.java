@@ -126,8 +126,11 @@ public class Project {
 		ListIterator<Line> itr = linesOfCode.listIterator();
 		String stringText = "";
 		
-		while(itr.hasNext()) {
+		if(itr.hasNext())
 			stringText+= itr.next().toString();
+		
+		while(itr.hasNext()) {
+			stringText+= "\n" + itr.next().toString() ;
 		}
 		
 		return stringText;
@@ -142,9 +145,11 @@ public class Project {
 		itr = linesOfCode.listIterator(temp);
 		
 		String stringText = "";
+		if(itr.hasNext())
+			stringText = itr.next().toString();
 		
-		for(int i = temp ; i<=caretLine+2 && itr.hasNext() ; i++) {
-			stringText+= itr.next().toString();
+		for(int i = temp+1 ; i<=caretLine+2 && itr.hasNext() ; i++) {
+			stringText += "\n" + itr.next().toString();
 		}
 		
 		return stringText;
@@ -161,10 +166,8 @@ public class Project {
 	public int get2LinesDownFromCaret(int caretLine) {
 		if(caretLine < this.numberOfLines-2)
 			return caretLine+2;
-		else if(caretLine >= this.lockednumber)
-			return caretLine-1;
-		else  
-			return caretLine;
+		else 
+			return this.numberOfLines-1;
 
 	}
 	

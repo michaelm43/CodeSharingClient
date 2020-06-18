@@ -308,7 +308,7 @@ public class ControllerEditor {
 
 	public void sendNewCode() {
 		addCodeStage.close();
-		this.proj.setText(this.caretLine, editCode.getText());// CODE IN /*
+		this.proj.setText(this.caretLine, editCode.getText());// TODO CODE IN /*
 		this.codeArea.clear();
 
 		// codeArea.insertText(list.get(0).getLineNumber(), 0 , list.toString());
