@@ -193,7 +193,7 @@ public class ActionRequest {
 		return isRegistered;
 	}
 	
-	public Project editCode(User user, Project proj,String txt) {
+	public Project editCode(User user, Project proj, String txt) {
 		boolean isRegistered = false;
 		Project newProj = null;
 		try {

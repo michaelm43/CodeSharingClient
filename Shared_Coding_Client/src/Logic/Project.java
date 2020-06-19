@@ -19,12 +19,16 @@ public class Project {
 	//to check how many lines were changed
 	private int lockednumber = 0;
 	
-	public static List<Line> initCode= new LinkedList<>(List.of(	
-			new Line("public class Application", 1), 
+	public List<Line> initCode = new LinkedList<>(List.of(	
+			new Line("public class ", 1), 
 			new Line("{",2),
 			new Line("public static void main(String[] args)",3),
 			new Line("{",4),
 			new Line("System.out.println(100);", 5),
+//			new Line("",6),
+//			new Line("",7),
+//			new Line("",8),
+//			new Line("",9),
 			new Line("}",6),
 			new Line("}",7)
 			)); 
@@ -42,7 +46,8 @@ public class Project {
 		this.users.add(creator);
 		this.activeUsers.add(new ActiveUser(creator,false,-1,0));
 		
-		this.linesOfCode = initCode;
+		this.linesOfCode = new LinkedList<>(initCode);
+		this.linesOfCode.get(0).setCode(this.linesOfCode.get(0).getCode() + name);
 		this.numberOfLines = initCode.size();
 	}
 	
@@ -178,9 +183,6 @@ public class Project {
 				this.linesOfCode.get(i).setLocked(true);
 				this.lockednumber++;
 			}*/
-		System.out.println("LOCK");
-		System.out.println(start);
-		System.out.println(end-start+1);
 		return new ActionRequest().lockLines(user, this, start, end-start+1);
 
 	}
@@ -197,33 +199,33 @@ public class Project {
 
 
 	public void setText(int caretLine, String text) {
-		
 		String [] stringArr = text.split("\n");
 		int length = stringArr.length;
-		int start = get2LinesUpFromCaret(caretLine);
-		int end = get2LinesDownFromCaret(caretLine);
+//		int start = get2LinesUpFromCaret(caretLine);
+//		int end = get2LinesDownFromCaret(caretLine);
 				
 		/*
 		 * delete locked lines - not relevant cause they changed
 		 */
-		for(int i = 0 ; i <= (end - start); i++) {
-			this.linesOfCode.remove(start);
-		}
+//		for(int i = 0 ; i <= (end - start); i++) {
+//			this.linesOfCode.remove(start);
+//		}
 		
 		/*
 		 * add all new lines (and the locked lines) to the list
 		 */
-		for(int i=start, j=0 ; i < length+start ; i++,j++) {
-			Line tempLine = new Line(stringArr[j],i);
-			linesOfCode.add(i, tempLine);
-		}
+//		for(int i=start, j=0 ; i < length+start ; i++,j++) {
+//			Line tempLine = new Line(stringArr[j],i);
+//			linesOfCode.add(i, tempLine);
+//		}
+		this.linesOfCode.get(caretLine).setCode(stringArr[0].toString());
 		
 		/*
 		 * update all the line numbers
 		 */
-		for(int i = length+start; i <linesOfCode.size();i++) {
+		/*for(int i = length+start; i <linesOfCode.size();i++) {
 			linesOfCode.get(i).setNumber(i);
-		}
+		}*/
 		
 	}
 	

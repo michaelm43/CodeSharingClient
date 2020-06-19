@@ -2,6 +2,7 @@ package GUI;
 
 import java.io.IOException;
 
+import HttpRequests.ActionRequest;
 import HttpRequests.ElementRequest;
 import HttpRequests.UserRequests;
 import Logic.*;
@@ -26,7 +27,7 @@ public class ControllerNewFile {
 		this.newFileStage = stage;
 		this.user = user;
 		this.editorStage = editorStage;
-		
+		this.proj = null;
 		
 		// Load the FXML file
         try {    		     	

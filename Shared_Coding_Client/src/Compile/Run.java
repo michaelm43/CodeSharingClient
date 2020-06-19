@@ -1,7 +1,6 @@
 package Compile;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +26,7 @@ public class Run extends OutputStream implements Runnable {
 	public void run() {
 		try {
 			PrintStream out = new PrintStream(this);
+			PrintStream originConsole = System.out;
 			System.setOut(out);
 			class_name = proj.getName();
 			FileOutputStream fout = new FileOutputStream("." + "\\" + class_name + ".java");
@@ -48,6 +48,7 @@ public class Run extends OutputStream implements Runnable {
 				line = reader.readLine();
 			}
 			in.close();
+			System.setOut(originConsole);
 		} catch (Exception e1) {
 			System.out.println(e1);
 		}
