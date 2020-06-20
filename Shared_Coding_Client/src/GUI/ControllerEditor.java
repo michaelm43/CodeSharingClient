@@ -100,7 +100,9 @@ public class ControllerEditor {
 	private boolean isDeleted = false;
 	
 	private boolean isEdited = false;
+	private String originalLine;
 	private String beforeChange;
+	private int caretCol;
 	
 	
 	public ControllerEditor(User user, Project project, Stage stage) {
@@ -197,14 +199,15 @@ public class ControllerEditor {
 		
 		//TODO CHANGE
 		codeArea.setOnMouseClicked(e -> {
+			int col = codeArea.getCaretColumn();
+			System.out.println("Line = " + codeArea.getCurrentParagraph() + ", caretLine = " + this.caretLine);
 			if(codeArea.getCurrentParagraph() != this.caretLine) {
 				int line = codeArea.getCurrentParagraph();
-				int col = codeArea.getCaretColumn();
 				if(isEdited) {
 					String temp;
 					try {
-						temp = fixProjectWithNoCompilerErrors(this.codeArea.getText(this.caretLine));
-						this.proj = new ActionRequest().editCode(user, proj, temp);
+						temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine);
+						this.proj = new ActionRequest().editCode(user, proj, temp, "MOUSE");
 						//TODO fix caret jump to the end of line
 						this.codeArea.clear();
 						this.codeArea.replaceText(0, 0, this.proj.toString());
@@ -220,13 +223,22 @@ public class ControllerEditor {
 				//3) lock the new line
 				this.caretLine = line;
 				//TODO lock on file
-				if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1))
-					this.beforeChange = this.codeArea.getText(this.caretLine);
+				if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) 
+					this.originalLine = this.codeArea.getText(this.caretLine);
 			}
+			this.caretCol = col;
 		});
 		
 		//TODO fix all of that in a method!
 		codeArea.setOnKeyPressed(e -> {
+
+			int col = this.codeArea.getCaretColumn();
+			
+			System.out.println();
+			//char ch = e.getText().charAt(0);
+			if(e.getText().length() > 0)
+				col++;
+			System.out.println("***col = " + col + " this.col = " + this.caretCol);
 			isEdited = true;
 			//TODO add flag for change!
 			/*
@@ -234,13 +246,13 @@ public class ControllerEditor {
 			 * 1) update the current line
 			 */
 			if(e.getCode() == KeyCode.S && e.isControlDown()) {
-				int col = this.codeArea.getCaretColumn();
+				//int col = this.codeArea.getCaretColumn();
 				try {
-					String temp = fixProjectWithNoCompilerErrors(this.codeArea.getText(this.caretLine));
-					this.proj = new ActionRequest().editCode(user, proj, temp);
+					String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine);
+					this.proj = new ActionRequest().editCode(user, proj, temp, "CTRL+S");
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
-					this.codeArea.moveTo(this.caretLine,col);
+					this.codeArea.moveTo(this.caretLine, col);
 					//TODO lock!
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -249,51 +261,46 @@ public class ControllerEditor {
 				isEdited = false;
 			}
 			
+
 			/*
 			 * if the line number was changed 
 			 * 1) need to update the db		TODO
 			 * 2) unlock the last line		TODO
 			 * 3) lock the new line and wait for another update		TODO 
 			 */
-			else if(codeArea.getCurrentParagraph() != this.caretLine){	//the line was changed
+			else if(codeArea.getCurrentParagraph() != this.caretLine 
+					|| getNumberOfLines() < proj.getLinesOfCode().size()){	//the line was changed
+				//System.out.println(checkTheLine(this.codeArea.getText(this.caretLine), e.getCode()));
 				//TODO check compilation
-				//fixProjectWithNoCompilerErrors(editCode.getText());
-				String temp = "";
-				int col = this.codeArea.getCaretColumn();
+				String temp;
+				//int col = this.codeArea.getCaretColumn();
 				int line = this.codeArea.getCurrentParagraph();
-				//1) update the code in caret line (before the change)
-				switch (e.getCode()) {
-				case ENTER:
-					temp = codeArea.getText(this.caretLine) + "\n ";
-					break;
-				case BACK_SPACE:
-					temp = codeArea.getCurrentParagraph() + this.codeArea.getText(this.caretLine);
-					//TODO cases of arrows
-					//TODO case delete
-				default:
-					temp = codeArea.getText(this.caretLine);
-					break;
-				}
 				try {
-					temp = fixProjectWithNoCompilerErrors(temp);
+					temp = checkTheLine(this.caretLine, e.getCode());
 					
-					this.proj = new ActionRequest().editCode(user, proj, temp);
+					this.proj = new ActionRequest().editCode(user, proj, temp, e.getCode().toString());
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
 					this.codeArea.moveTo(line,col);
 					//2) unlock the last line
-					new ActionRequest().unlockLines(user, this.proj, 1);
+					if(this.caretLine < getNumberOfLines())
+						new ActionRequest().unlockLines(user, this.proj, 1);
 					//3) lock the new line
 					this.caretLine = line;
-					
+					//this.caretCol = col;
 					//TODO lock on file
-					if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1))
-						this.beforeChange = this.codeArea.getText(this.caretLine);
+					if(this.caretLine == getNumberOfLines()) 
+						this.caretLine--;
+					if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) 
+						this.originalLine = this.codeArea.getText(this.caretLine);
 				} catch (IOException err) {
 					err.printStackTrace();
 				}
 				isEdited = false;
 			}
+			this.caretCol = col;
+			if(this.caretLine < getNumberOfLines()) // IF THE LINE EXISTS
+				this.beforeChange= this.codeArea.getText(this.caretLine);
 		});
 	}
 	
@@ -440,13 +447,13 @@ public class ControllerEditor {
 //		tempProj.setText(this.caretLine, editCode.getText());
 		//String errors = compileProgram(tempProj.toString());
 		//if(errors != null) // THERE ARE ERRORS, NOT COMPILING
-		fixProjectWithNoCompilerErrors(editCode.getText());
+		//fixProjectWithNoCompilerErrors(editCode.getText());
 			//editCode.replaceText("/*" + editCode.getText() + "*/");
 		this.proj.setText(this.caretLine, editCode.getText());// TODO CODE IN /*
 		this.codeArea.clear();
 
 		// update server
-		this.proj = new ActionRequest().editCode(user, proj,editCode.getText());
+		this.proj = new ActionRequest().editCode(user, proj,editCode.getText(), "NONE");
 		if(this.proj != null) {
 			this.proj = new Project(this.proj);
 			this.codeArea.replaceText(0, 0, this.proj.toString());
@@ -517,7 +524,6 @@ public class ControllerEditor {
 		new ControllerNewFile(newFileStage, user, this.editorStage);
 		if(this.caretLine >= 0)	{//means no lock yet happened
 			new ActionRequest().unlockLines(user, this.proj, 1);
-			this.beforeChange = "";
 		}
 		newFileStage.show();
 	}
@@ -576,47 +582,147 @@ public class ControllerEditor {
 		this.isDeleted = isDeleted;
 	}
 	
-	public String fixProjectWithNoCompilerErrors(String newLine) throws IOException{
+	
+	public String checkErrorsEnter(String str, int strLine) throws IOException {
 		Project tempProj = new Project(this.proj);
+		String errors;
 		
-		//TODO check empty spaces
-		/*
-		 * given the line was a comment
-		 * when it was edited
-		 * than delete comment and try to compile it
-		 */
-		if(newLine.length()>1 && newLine.subSequence(0, 2).equals("//"))
-			newLine = newLine.substring(2);
 		
-		tempProj.setText(this.caretLine, newLine);
-		
-		/*
-		 * GIVEN new string line
-		 * WHEN the line still did not added to the file
-		 * THAN check the compiler if the new line creates errors
-		 */
-		String errors = compileProgram(tempProj.toString()); 
-		
-		/*
-		 * there is an error in the line, make it a comment
-		 */
-		if(errors != null)
-			//compile errors
-			newLine = "//" + newLine;
-		
-		tempProj.getLinesOfCode().get(this.caretLine).setCode(newLine);
+		tempProj.setText(strLine, str);
+		tempProj.getLinesOfCode().add(strLine+1, new Line());
+		tempProj.setText(strLine+1,str.split("\n")[1]);
 		errors = compileProgram(tempProj.toString());
-		
-		/*
-		 * check if the the project do not have compilation errors.
-		 * if it does:
-		 * OR an important line was changed, revert and add the changes as comment
-		 * OR an important line was deleted. discard changes and add a comment with information
-		 */
-		if(errors != null)
-			//compile errors
-			newLine = this.beforeChange + "\n //error orcured";
-		
-		return newLine;
+		System.out.println(tempProj.toString());
+		System.out.println(errors);
+		if(errors == null)
+			return str; 
+		tempProj.removeLine(strLine+1);
+		String tempStr;
+		tempProj = new Project(this.proj);
+		tempProj.setText(strLine, str.split("\n")[0]);
+		errors = compileProgram(tempProj.toString());
+		if(errors == null)
+			tempStr = str.split("\n")[0];
+		else
+			tempStr = "//" + str.split("\n")[0];
+		tempProj.setText(strLine, str.split("\n")[1]);
+		errors = compileProgram(tempProj.toString());
+		if(errors == null)
+			tempStr += "\n" + str.split("\n")[1];
+		else
+			tempStr += "\n//" + str.split("\n")[1];
+		return tempStr;
 	}
+	
+	
+	public String checkErrors(String str, int strLine) throws IOException {
+		Project tempProj = new Project(this.proj);
+		String errors;
+		
+		tempProj.setText(strLine, str);
+		errors = compileProgram(tempProj.toString());
+		System.out.println(tempProj.toString());
+		System.out.println(errors);
+		if(errors == null)
+			return str; 
+		return "//" + str;
+	}
+	
+	public String checkTheLine(int strLine, KeyCode key) throws IOException {
+		String str = "";
+		switch (key){
+		case ENTER: {
+			str = codeArea.getText(strLine).concat(codeArea.getText(codeArea.getCurrentParagraph()));
+			String prefix = str.substring(0,this.caretCol);
+			String postfix = str.substring(this.caretCol);
+			if(prefix.length() == 0) {
+				//Beginning of the line
+				return "\n" + checkErrors(postfix, this.caretLine);
+			}
+			else if(postfix.length() == 0) {
+				//end of line
+				return checkErrors(prefix, this.caretLine) + "\n "; 
+			}
+			else {
+				//middle of the line or empty line
+				return checkErrorsEnter(prefix + "\n" + postfix, this.caretLine); // TODO CHECK { }
+			}			
+			//TODO check if needed line = ""
+		}
+		case BACK_SPACE:{
+			//TODO check begining of file
+			String prefix;
+			if(strLine < getNumberOfLines()) {
+				prefix = codeArea.getText(codeArea.getCurrentParagraph());
+				return checkErrors(prefix, strLine-1);
+			}
+			prefix = codeArea.getText(codeArea.getCurrentParagraph()-1);
+			return checkErrors(prefix, strLine);
+		}
+		case DELETE:{
+			String prefix = codeArea.getText(codeArea.getCurrentParagraph());
+			if(strLine+1 <= getNumberOfLines())
+				proj.removeLine(strLine);
+			return checkErrors(prefix, this.caretLine);
+		}
+		default:
+			break;
+		}
+		
+		return str;
+	}
+	
+	public int getNumberOfLines() {
+		return this.codeArea.getText().split("\n").length;
+	}
+	
+	
+//	public String fixProjectWithNoCompilerErrors(String newLine) throws IOException{
+//		Project tempProj = new Project(this.proj);
+//		
+//		//TODO check empty spaces
+//		/*
+//		 * given the line was a comment
+//		 * when it was edited
+//		 * than delete comment and try to compile it
+//		 */
+//		if(newLine.length()>1 && newLine.subSequence(0, 2).equals("//"))
+//			newLine = newLine.substring(2);
+//		
+//		tempProj.setText(this.caretLine, newLine);
+//		System.out.println("first check : " + newLine);
+//		
+//		/*
+//		 * GIVEN new string line
+//		 * WHEN the line still did not added to the file
+//		 * THAN check the compiler if the new line creates errors
+//		 */
+//		String errors = compileProgram(tempProj.toString()); 
+//		
+//		/*
+//		 * there is an error in the line, make it a comment
+//		 */
+//		if(errors != null)
+//			//compile errors
+//			newLine = "//" + newLine;
+//		
+//		System.out.println("second check : " + newLine);
+//		
+//		tempProj.getLinesOfCode().get(this.caretLine).setCode(newLine);
+//		errors = compileProgram(tempProj.toString());
+//		
+//		/*
+//		 * check if the the project do not have compilation errors.
+//		 * if it does:
+//		 * OR an important line was changed, revert and add the changes as comment
+//		 * OR an important line was deleted. discard changes and add a comment with information
+//		 */
+//		if(errors != null)
+//			//compile errors
+//			newLine = this.beforeChange + "\n //error occurred";
+//		
+//		System.out.println("third check : " + newLine);
+//		
+//		return newLine;
+//	}
 }

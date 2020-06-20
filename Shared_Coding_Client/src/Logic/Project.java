@@ -200,33 +200,7 @@ public class Project {
 
 	public void setText(int caretLine, String text) {
 		String [] stringArr = text.split("\n");
-		int length = stringArr.length;
-//		int start = get2LinesUpFromCaret(caretLine);
-//		int end = get2LinesDownFromCaret(caretLine);
-				
-		/*
-		 * delete locked lines - not relevant cause they changed
-		 */
-//		for(int i = 0 ; i <= (end - start); i++) {
-//			this.linesOfCode.remove(start);
-//		}
-		
-		/*
-		 * add all new lines (and the locked lines) to the list
-		 */
-//		for(int i=start, j=0 ; i < length+start ; i++,j++) {
-//			Line tempLine = new Line(stringArr[j],i);
-//			linesOfCode.add(i, tempLine);
-//		}
 		this.linesOfCode.get(caretLine).setCode(stringArr[0].toString());
-		
-		/*
-		 * update all the line numbers
-		 */
-		/*for(int i = length+start; i <linesOfCode.size();i++) {
-			linesOfCode.get(i).setNumber(i);
-		}*/
-		
 	}
 	
 	public String getKey() {

@@ -6,6 +6,10 @@ public class Line {
 	private String code;
 	private boolean locked;
 	
+	public Line() {
+		
+	}
+	
 	public Line(String line, int lineNumber) {
 		super();
 		this.code = line;

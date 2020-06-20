@@ -193,7 +193,7 @@ public class ActionRequest {
 		return isRegistered;
 	}
 	
-	public Project editCode(User user, Project proj, String txt) {
+	public Project editCode(User user, Project proj, String txt, String event) {
 		boolean isRegistered = false;
 		Project newProj = null;
 		try {
@@ -203,6 +203,7 @@ public class ActionRequest {
 			Action action = new Action("edit-code", proj.getCreator(), proj.getName(), user.getEmail());
 			
 			action.getProperties().put("code", txt);
+			action.getProperties().put("event", event);
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
