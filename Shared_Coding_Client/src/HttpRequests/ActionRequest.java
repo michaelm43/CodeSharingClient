@@ -14,12 +14,20 @@ import Logic.User;
 
 public class ActionRequest {
 	
-	public static String IP = "192.168.1.22";
+	public static String IP;//= "192.168.1.22";
 //	public static String IP = "192.168.1.229";
 	public static String PORT = "8089";
 	
 	private String baseUrl = "http://" + IP + ":" + PORT + "/";
 	
+	public ActionRequest() {
+		super();
+	}
+	
+	public ActionRequest(String ip) {
+		super();
+		ActionRequest.IP = ip;
+	}
 	
 	public boolean addNewUser(User user, Project proj, String email) {
 		boolean isRegistered = false;

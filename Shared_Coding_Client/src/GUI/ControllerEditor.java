@@ -238,7 +238,6 @@ public class ControllerEditor {
 			//char ch = e.getText().charAt(0);
 			if(e.getText().length() > 0)
 				col++;
-			System.out.println("***col = " + col + " this.col = " + this.caretCol);
 			isEdited = true;
 			//TODO add flag for change!
 			/*
@@ -583,49 +582,52 @@ public class ControllerEditor {
 	}
 	
 	
-	public String checkErrorsEnter(String str, int strLine) throws IOException {
-		Project tempProj = new Project(this.proj);
+	public String checkErrorsEnter(String prefix, String postfix, int prefixLine) throws IOException {
+		Project tempProj;
 		String errors;
 		
+		tempProj = new Project(this.proj);
+		tempProj.setText(prefixLine, prefix);
+		tempProj.getLinesOfCode().add(prefixLine+1, new Line(postfix,-1));
 		
-		tempProj.setText(strLine, str);
-		tempProj.getLinesOfCode().add(strLine+1, new Line());
-		tempProj.setText(strLine+1,str.split("\n")[1]);
 		errors = compileProgram(tempProj.toString());
 		System.out.println(tempProj.toString());
 		System.out.println(errors);
+		
 		if(errors == null)
-			return str; 
-		tempProj.removeLine(strLine+1);
-		String tempStr;
-		tempProj = new Project(this.proj);
-		tempProj.setText(strLine, str.split("\n")[0]);
-		errors = compileProgram(tempProj.toString());
-		if(errors == null)
-			tempStr = str.split("\n")[0];
-		else
-			tempStr = "//" + str.split("\n")[0];
-		tempProj.setText(strLine, str.split("\n")[1]);
-		errors = compileProgram(tempProj.toString());
-		if(errors == null)
-			tempStr += "\n" + str.split("\n")[1];
-		else
-			tempStr += "\n//" + str.split("\n")[1];
-		return tempStr;
+			return prefix + "\n" + postfix; 
+						
+		return checkErrors(prefix, prefixLine) + "\n" + checkErrors(postfix, prefixLine);
 	}
 	
 	
 	public String checkErrors(String str, int strLine) throws IOException {
+		System.out.println("THE PROJECT IS : \n" + this.getProj().toString());
 		Project tempProj = new Project(this.proj);
 		String errors;
 		
 		tempProj.setText(strLine, str);
 		errors = compileProgram(tempProj.toString());
-		System.out.println(tempProj.toString());
-		System.out.println(errors);
 		if(errors == null)
 			return str; 
-		return "//" + str;
+		tempProj.setText(strLine,"//" +str);
+		return checkSecondLayerError(tempProj, strLine, "//" + str);
+	}
+	
+	public String checkSecondLayerError(Project firstLayerProj, int changedLine, String changes) throws IOException {
+		String errors;
+		
+		errors = compileProgram(firstLayerProj.toString());
+		
+		if (errors == null)
+			return changes;
+		
+		changes = this.getProj().getLinesOfCode().get(changedLine).getCode() + "\t // 2nd Layer Compilation ERROR, revert!";
+		
+		System.out.println("changes = " + changes);
+		System.out.println("*\n" + errors + "\n*");
+		
+		return changes;
 	}
 	
 	public String checkTheLine(int strLine, KeyCode key) throws IOException {
@@ -645,7 +647,7 @@ public class ControllerEditor {
 			}
 			else {
 				//middle of the line or empty line
-				return checkErrorsEnter(prefix + "\n" + postfix, this.caretLine); // TODO CHECK { }
+				return checkErrorsEnter(prefix, postfix, this.caretLine); // TODO CHECK { }
 			}			
 			//TODO check if needed line = ""
 		}
@@ -669,7 +671,7 @@ public class ControllerEditor {
 			break;
 		}
 		
-		return str;
+		return checkErrors(codeArea.getText(strLine),strLine);
 	}
 	
 	public int getNumberOfLines() {

@@ -13,12 +13,20 @@ import Logic.User;
 
 public class ElementRequest {	
 	
-	public static String IP = "192.168.1.22";
+	public static String IP ;//= "192.168.1.22";
 //	public static String IP = "192.168.1.229";
 	public static String PORT = "8089";
 	
 	private String baseUrl = "http://" + IP + ":" + PORT + "/elements/";
 	
+	public ElementRequest() {
+		super();
+	}
+	
+	public ElementRequest(String ip) {
+		super();
+		ElementRequest.IP = ip;
+	}
 	
 	/*
 	 * newElement(elementBoundary)

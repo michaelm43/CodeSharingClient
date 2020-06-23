@@ -56,7 +56,15 @@ public class Project {
 		this.name = proj.getName();
 		this.creator = proj.getCreator();
 		
-		this.linesOfCode = proj.getLinesOfCode();
+		this.linesOfCode = new LinkedList<>();
+		//this.linesOfCode.addAll(proj.getLinesOfCode());
+		ListIterator<Line> itr = proj.linesOfCode.listIterator();
+		while(itr.hasNext()) {
+			this.linesOfCode.add(new Line(itr.next()));
+		}
+		
+		
+		//this.linesOfCode = proj.getLinesOfCode();
 		this.users = proj.getUsers();
 		this.activeUsers = proj.getActiveUsers();
 		
@@ -106,7 +114,7 @@ public class Project {
 	public List<Line> getLinesOfCode() {
 		return linesOfCode;
 	}
-
+	
 	public void setLinesOfCode(List<Line> linesOfCode) {
 		this.linesOfCode = linesOfCode;
 	}

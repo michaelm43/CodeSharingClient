@@ -12,7 +12,7 @@ import Logic.User;
 
 public class UserRequests {
 
-	public static String IP = "192.168.1.22";
+	public static String IP ;//= "192.168.1.22";
 //	public static String IP = "192.168.1.229";
 	public static String PORT = "8089";
 	
@@ -22,6 +22,17 @@ public class UserRequests {
 	 * newUser()
 	 * register a new user to the app
 	 */
+	
+	public UserRequests() {
+		super();
+	}
+	
+	public UserRequests(String ip) {
+		super();
+		UserRequests.IP = ip;
+	}
+	
+	
 	public boolean registerUser(User user) {
 		boolean isRegistered = false;
 		try {

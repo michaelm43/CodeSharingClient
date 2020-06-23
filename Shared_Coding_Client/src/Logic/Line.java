@@ -19,7 +19,7 @@ public class Line {
 	
 	public Line(Line line) {
 		super();
-		this.code = line.getCode();
+		this.code = new String(line.getCode());
 		this.number = line.getNumber();
 		this.locked = line.isLocked();
 	}
