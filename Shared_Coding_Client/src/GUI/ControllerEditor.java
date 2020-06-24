@@ -206,7 +206,7 @@ public class ControllerEditor {
 				if(isEdited) {
 					String temp;
 					try {
-						temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine);
+						temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
 						this.proj = new ActionRequest().editCode(user, proj, temp, "MOUSE");
 						//TODO fix caret jump to the end of line
 						this.codeArea.clear();
@@ -247,7 +247,7 @@ public class ControllerEditor {
 			if(e.getCode() == KeyCode.S && e.isControlDown()) {
 				//int col = this.codeArea.getCaretColumn();
 				try {
-					String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine);
+					String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
 					this.proj = new ActionRequest().editCode(user, proj, temp, "CTRL+S");
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
@@ -435,6 +435,9 @@ public class ControllerEditor {
 		Boolean isExit = ConfirmBox.display(title, msg);
 		if (isExit) {
 			editorStage.close();
+			if(this.caretLine >= 0)	{//means no lock yet happened
+				new ActionRequest().unlockLines(user, this.proj, 1);
+			}
 			new ActionRequest().logoutProject(this.user, this.proj);
 			   System.exit(0);
 		}
@@ -530,6 +533,9 @@ public class ControllerEditor {
 	@FXML
 	public void openFile() throws IOException {
 		new ControllerOpenFile(user, this.editorStage, null).showStage();
+		if(this.caretLine >= 0)	{//means no lock yet happened
+			new ActionRequest().unlockLines(user, this.proj, 1);
+		}
 		new ActionRequest().loginProject(this.user, this.proj);
 	}
 
@@ -537,6 +543,9 @@ public class ControllerEditor {
 	public void logout() throws IOException {
 		Boolean isExit = ConfirmBox.display("Logout", "are you shure you want to logout?");
 		if (isExit) {
+			if(this.caretLine >= 0)	{//means no lock yet happened
+				new ActionRequest().unlockLines(user, this.proj, 1);
+			}
 			new ActionRequest().logoutProject(this.user, this.proj);
 			this.editorStage.close();
 
@@ -591,47 +600,61 @@ public class ControllerEditor {
 		tempProj.getLinesOfCode().add(prefixLine+1, new Line(postfix,-1));
 		
 		errors = compileProgram(tempProj.toString());
-		System.out.println(tempProj.toString());
-		System.out.println(errors);
 		
 		if(errors == null)
 			return prefix + "\n" + postfix; 
 						
-		return checkErrors(prefix, prefixLine) + "\n" + checkErrors(postfix, prefixLine);
+		return checkErrors(prefix, prefixLine,this.getProj().getLinesOfCode().get(prefixLine).getCode(), false) + "\n" + checkErrors(postfix, prefixLine," ", false);
 	}
 	
 	
-	public String checkErrors(String str, int strLine) throws IOException {
-		System.out.println("THE PROJECT IS : \n" + this.getProj().toString());
+	public String checkErrors(String str, int strLine,String restoreStr,boolean isDeleted) throws IOException {
 		Project tempProj = new Project(this.proj);
 		String errors;
-		
+			
 		tempProj.setText(strLine, str);
 		errors = compileProgram(tempProj.toString());
 		if(errors == null)
 			return str; 
-		tempProj.setText(strLine,"//" +str);
-		return checkSecondLayerError(tempProj, strLine, "//" + str);
+		
+		String check = checkIfBracketsError(errors,isDeleted);
+		if(check != null)
+			return str + "\n" + check;
+		
+		tempProj.setText(strLine,"//" + str);
+		return checkSecondLayerError(tempProj, strLine, "//" + str, restoreStr);
 	}
 	
-	public String checkSecondLayerError(Project firstLayerProj, int changedLine, String changes) throws IOException {
+	public String checkSecondLayerError(Project firstLayerProj, int changedLine, String changes,String restoreStr) throws IOException {
 		String errors;
-		
+				
 		errors = compileProgram(firstLayerProj.toString());
 		
 		if (errors == null)
 			return changes;
 		
-		changes = this.getProj().getLinesOfCode().get(changedLine).getCode() + "\t // 2nd Layer Compilation ERROR, revert!";
+		String check = checkIfBracketsError(errors, isDeleted);
+		if(check != null)
+			return check;
 		
-		System.out.println("changes = " + changes);
-		System.out.println("*\n" + errors + "\n*");
-		
+		changes = restoreStr + "\t // 2nd Layer Compilation ERROR, revert!";		
 		return changes;
+	}
+	
+	public String checkIfBracketsError(String errors, boolean isDeleted){
+		System.out.println("errors = \n" + errors);
+		String[] errorArr = errors.split("\n");
+		System.out.println("check boolean = " + errorArr[0].contains("reached end of file while parsing"));
+		System.out.println("the error is = " + errorArr[1].trim());
+		if(errorArr[0].contains("reached end of file while parsing"))
+			return errorArr[1].trim();
+		
+		return null;
 	}
 	
 	public String checkTheLine(int strLine, KeyCode key) throws IOException {
 		String str = "";
+		String restoreStr = this.getProj().getLinesOfCode().get(strLine).getCode();
 		switch (key){
 		case ENTER: {
 			str = codeArea.getText(strLine).concat(codeArea.getText(codeArea.getCurrentParagraph()));
@@ -639,11 +662,11 @@ public class ControllerEditor {
 			String postfix = str.substring(this.caretCol);
 			if(prefix.length() == 0) {
 				//Beginning of the line
-				return "\n" + checkErrors(postfix, this.caretLine);
+				return "\n" + checkErrors(postfix, this.caretLine,restoreStr,false);
 			}
 			else if(postfix.length() == 0) {
 				//end of line
-				return checkErrors(prefix, this.caretLine) + "\n "; 
+				return checkErrors(prefix, this.caretLine,restoreStr,false) + "\n" + " "; 
 			}
 			else {
 				//middle of the line or empty line
@@ -654,24 +677,30 @@ public class ControllerEditor {
 		case BACK_SPACE:{
 			//TODO check begining of file
 			String prefix;
-			if(strLine < getNumberOfLines()) {
-				prefix = codeArea.getText(codeArea.getCurrentParagraph());
-				return checkErrors(prefix, strLine-1);
-			}
-			prefix = codeArea.getText(codeArea.getCurrentParagraph()-1);
-			return checkErrors(prefix, strLine);
+			String postfix;
+			if(strLine < getNumberOfLines()) 
+				//change
+				str = codeArea.getText(codeArea.getCurrentParagraph());
+			else
+				str = codeArea.getText(codeArea.getCurrentParagraph()-1);
+			
+			prefix =  str.substring(0,this.codeArea.getCaretColumn());
+			postfix = str.substring(codeArea.getCaretColumn());
+			return prefix + " " + checkErrors(postfix, strLine,prefix +"\n" + restoreStr,true);
 		}
 		case DELETE:{
-			String prefix = codeArea.getText(codeArea.getCurrentParagraph());
-			if(strLine+1 <= getNumberOfLines())
-				proj.removeLine(strLine);
-			return checkErrors(prefix, this.caretLine);
+			String prefix;
+			String postfix;
+			str = codeArea.getText(codeArea.getCurrentParagraph());
+			prefix =  str.substring(0,this.codeArea.getCaretColumn());
+			postfix = str.substring(codeArea.getCaretColumn());
+			return checkErrors(prefix, strLine, restoreStr + "\n" + postfix, true);
 		}
 		default:
 			break;
 		}
 		
-		return checkErrors(codeArea.getText(strLine),strLine);
+		return checkErrors(codeArea.getText(strLine),strLine,restoreStr, true);
 	}
 	
 	public int getNumberOfLines() {
