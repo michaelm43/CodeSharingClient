@@ -7,53 +7,91 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
 <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <top>
-      <MenuBar BorderPane.alignment="CENTER">
-        <menus>
-          <Menu mnemonicParsing="false" text="File">
-            <items>
-                  <MenuItem mnemonicParsing="false" onAction="#newFile" text="New" />
-                  <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <MenuItem mnemonicParsing="false" onAction="#logout" text="Logout" />
-                  <MenuItem mnemonicParsing="false" onAction="#changePassword" text="change psw" />
-                  <MenuItem mnemonicParsing="false" onAction="#deleteProject" text="delete project" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem mnemonicParsing="false" onAction="#exitProgram" text="Exit" />
-            </items>
-          </Menu>
-          <!-- 
-           <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
-            </items>
-          </Menu>
-           -->
-          <Menu mnemonicParsing="false" text="Help">
-            <items>
-              <MenuItem mnemonicParsing="false" text="About" onAction="#help"/>
-            </items>
-          </Menu>
-            <Menu mnemonicParsing="false">
-               <graphic>
-                  <Button mnemonicParsing="false" onAction="#onRun" text="Run" />
-               </graphic>
-            </Menu>
-            <Menu mnemonicParsing="false">
-               <graphic>
-                  <Button fx:id="btnAddUser" mnemonicParsing="false" onAction="#addUser" text="Add user" />
-               </graphic>
-            </Menu>
-        </menus>
-      </MenuBar>
+      <HBox>
+         <children>
+            <MenuBar>
+              <menus>
+                <Menu mnemonicParsing="false" text="File">
+                  <items>
+                        <MenuItem mnemonicParsing="false" onAction="#newFile" text="New" />
+                        <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#logout" text="Logout" />
+                        <MenuItem mnemonicParsing="false" onAction="#changePassword" text="change psw" />
+                        <MenuItem mnemonicParsing="false" onAction="#deleteProject" text="delete project" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                    <MenuItem mnemonicParsing="false" onAction="#exitProgram" text="Exit" />
+                  </items>
+                </Menu>
+                <!-- 
+                 <Menu mnemonicParsing="false" text="Edit">
+                  <items>
+                    <MenuItem mnemonicParsing="false" text="Delete" />
+                  </items>
+                </Menu>
+                 -->
+                <Menu mnemonicParsing="false" text="Help">
+                  <items>
+                    <MenuItem mnemonicParsing="false" onAction="#help" text="About" />
+                  </items>
+                </Menu>
+                  <Menu mnemonicParsing="false">
+                     <graphic>
+                        <Button mnemonicParsing="false" onAction="#onRun" text="Run" />
+                     </graphic>
+                  </Menu>
+              </menus>
+            </MenuBar>
+            <MenuBar prefHeight="33.0" prefWidth="276.0" HBox.hgrow="ALWAYS">
+               <menus>
+                  <Menu mnemonicParsing="false">
+                     <graphic>
+                        <Region />
+                     </graphic>
+                  </Menu>
+               </menus>
+            </MenuBar>
+            <MenuBar>
+               <menus>
+                  <Menu mnemonicParsing="false">
+                     <graphic>
+                        <Button fx:id="btnAddUser" mnemonicParsing="false" onAction="#addUser" text="Add user" />
+                     </graphic>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="ActiveUsers">
+                     <items>
+                        <MenuItem mnemonicParsing="false">
+                           <graphic>
+                              <VBox fx:id="menuActiveUsers" focusTraversable="true" />
+                           </graphic>
+                        </MenuItem>
+                     </items></Menu>
+               </menus>
+            </MenuBar>
+         </children>
+      </HBox>
    </top>
-   <bottom>
-      <TextArea fx:id="txtConsole" editable="false" visible="false" BorderPane.alignment="CENTER" />
-   </bottom>
    <stylesheets>
-      <URL value="@LayoutEditor.css"/>
+      <URL value="@LayoutEditor.css" />
    </stylesheets>
+   <bottom>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <ToolBar prefHeight="0.0" prefWidth="600.0">
+               <items>
+                  <Button alignment="TOP_LEFT" mnemonicParsing="false" text="Console" />
+               </items>
+            </ToolBar>
+            <TextArea fx:id="txtConsole" editable="false" prefHeight="200.0" prefWidth="600.0" visible="false" />
+         </children>
+      </VBox>
+   </bottom>
 </BorderPane>

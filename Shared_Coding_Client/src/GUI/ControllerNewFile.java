@@ -1,6 +1,7 @@
 package GUI;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import HttpRequests.ActionRequest;
 import HttpRequests.ElementRequest;
@@ -59,7 +60,12 @@ public class ControllerNewFile {
 			lblErrorMessage.setText("File name can't be empty");
 			lblErrorMessage.setVisible(true);
 		}
+		else if (!checkFileName(txtFileName.getText())){
+			lblErrorMessage.setText("File name has to contain only:\n the english Alphabet, numbers and '_'");
+			lblErrorMessage.setVisible(true);
+		}
 		else {
+			
 			proj = new Project(txtFileName.getText(), user.getEmail());
 			if(new ElementRequest().openNewFile(user,proj)) {
 				newFileStage.close();
@@ -91,5 +97,13 @@ public class ControllerNewFile {
 			ControllerOpenFile openfileController = new ControllerOpenFile(user,this.editorStage,this.newFileStage);
 			openfileController.showStage();
 		}
+	}
+	
+	public boolean checkFileName(String name) {
+		String pswRegex = "^[\\w]+$";
+		Pattern pat = Pattern.compile(pswRegex);
+		if(name == null)
+			return false;
+		return pat.matcher(name).matches();
 	}
 }

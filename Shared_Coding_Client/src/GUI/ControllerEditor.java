@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 
 import Logic.*;
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -12,11 +14,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import Compile.*;
@@ -24,9 +29,12 @@ import Compile.Compiler;
 import HttpRequests.ActionRequest;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -89,9 +97,10 @@ public class ControllerEditor {
 
 	@FXML
 	private TextArea txtConsole;
-
 	@FXML
 	private BorderPane borderPane;
+	@FXML 
+	private VBox menuActiveUsers;
 
 	private int caretLine = -1;
 
@@ -145,7 +154,12 @@ public class ControllerEditor {
 
 		editorStage.setOnCloseRequest(e -> {
 			e.consume();
-			popUpMessage(EXIT_TITLE, EXIT_MESSAGE);
+			try {
+				popUpMessage(EXIT_TITLE, EXIT_MESSAGE);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		});
 
 		Runtime rt = Runtime.getRuntime();
@@ -173,6 +187,29 @@ public class ControllerEditor {
 				.successionEnds(Duration.ofMillis(500))
 				// run the following code block when previous stream emits an event
 				.subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
+		
+		
+		Subscription saveWhenNoWorking = codeArea
+				// plain changes = ignore style changes that are emitted when syntax
+				// highlighting is reapplied
+				// multi plain changes = save computation by not rerunning the code multiple
+				// times
+				// when making multiple changes (e.g. renaming a method at multiple parts in
+				// file)
+				.multiPlainChanges()
+				// do not emit an event until 500 ms have passed since the last emission of
+				// previous stream
+				.successionEnds(Duration.ofMillis(100000))
+				// run the following code block when previous stream emits an event
+				.subscribe(fireEvent -> {
+					if(this.caretLine >= 0)
+						Event.fireEvent(codeArea, new KeyEvent(
+							KeyEvent.KEY_PRESSED, 
+							null, 
+							codeArea.getText(codeArea.getCurrentParagraph()), 
+							KeyCode.S, 
+							false, true, false, false));});
+		
 
 		// when no longer need syntax highlighting and wish to clean up memory leaks
 		// run: `cleanupWhenNoLongerNeedIt.unsubscribe();`
@@ -190,6 +227,8 @@ public class ControllerEditor {
 		});
 
 		codeArea.replaceText(0, 0, proj.toString());
+		
+		getLabelFromString();
 		//lock for the first time
 		//TODO fix few users on same line
 		//new ActionRequest().lockLines(user, this.proj, this.caretLine, 0);
@@ -212,6 +251,7 @@ public class ControllerEditor {
 						this.codeArea.clear();
 						this.codeArea.replaceText(0, 0, this.proj.toString());
 						this.codeArea.moveTo(line,col);
+						getLabelFromString();
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -231,7 +271,7 @@ public class ControllerEditor {
 		
 		//TODO fix all of that in a method!
 		codeArea.setOnKeyPressed(e -> {
-
+			System.out.println(e.toString());
 			int col = this.codeArea.getCaretColumn();
 			
 			System.out.println();
@@ -245,13 +285,17 @@ public class ControllerEditor {
 			 * 1) update the current line
 			 */
 			if(e.getCode() == KeyCode.S && e.isControlDown()) {
+				System.out.println("in CTRL + Save");
 				//int col = this.codeArea.getCaretColumn();
 				try {
 					String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
+					this.caretLine = codeArea.getCurrentParagraph();
+					this.caretCol = codeArea.getCaretColumn();
 					this.proj = new ActionRequest().editCode(user, proj, temp, "CTRL+S");
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
-					this.codeArea.moveTo(this.caretLine, col);
+					this.codeArea.moveTo(this.caretLine, this.caretCol);
+					getLabelFromString();
 					//TODO lock!
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -281,6 +325,7 @@ public class ControllerEditor {
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
 					this.codeArea.moveTo(line,col);
+					getLabelFromString();
 					//2) unlock the last line
 					if(this.caretLine < getNumberOfLines())
 						new ActionRequest().unlockLines(user, this.proj, 1);
@@ -303,6 +348,14 @@ public class ControllerEditor {
 		});
 	}
 	
+
+	private void getLabelFromString() {
+		menuActiveUsers.getChildren().clear();
+		ListIterator<ActiveUser> itr = proj.getActiveUsers().listIterator();
+		while(itr.hasNext()) {
+			menuActiveUsers.getChildren().add(new Label(itr.next().getEmail()));
+		}
+	}
 
 	//TODO CHANGE
 	private void startLock() {
@@ -431,16 +484,28 @@ public class ControllerEditor {
 	/*
 	 * check if the user sure he wants to close the program
 	 */
-	public void popUpMessage(String title, String msg) {
+	public void popUpMessage(String title, String msg) throws IOException {
 		Boolean isExit = ConfirmBox.display(title, msg);
 		if (isExit) {
-			editorStage.close();
-			if(this.caretLine >= 0)	{//means no lock yet happened
-				new ActionRequest().unlockLines(user, this.proj, 1);
-			}
-			new ActionRequest().logoutProject(this.user, this.proj);
-			   System.exit(0);
+			closeStage();
+			System.exit(0);
 		}
+	}
+	
+
+	private void closeStage() throws IOException {
+		if(this.caretLine >= 0)	{//means no lock yet happened
+			if(this.isEdited)
+				saveFile();
+			new ActionRequest().unlockLines(user, this.proj, 1);
+		}
+		new ActionRequest().logoutProject(this.user, this.proj);	
+		editorStage.close();
+	}
+	
+	private void saveFile() throws IOException {
+		String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
+		this.proj = new ActionRequest().editCode(user, proj, temp, "CTRL+S");
 	}
 
 	public void sendNewCode() throws IOException {
@@ -459,6 +524,7 @@ public class ControllerEditor {
 		if(this.proj != null) {
 			this.proj = new Project(this.proj);
 			this.codeArea.replaceText(0, 0, this.proj.toString());
+			getLabelFromString();
 			this.proj.unLock(this.user,editCode.getText().split("\n").length);
 		}
 		// fix conflicts	
@@ -525,6 +591,8 @@ public class ControllerEditor {
 		Stage newFileStage = new Stage();
 		new ControllerNewFile(newFileStage, user, this.editorStage);
 		if(this.caretLine >= 0)	{//means no lock yet happened
+			if(this.isEdited)
+				saveFile();
 			new ActionRequest().unlockLines(user, this.proj, 1);
 		}
 		newFileStage.show();
@@ -534,6 +602,8 @@ public class ControllerEditor {
 	public void openFile() throws IOException {
 		new ControllerOpenFile(user, this.editorStage, null).showStage();
 		if(this.caretLine >= 0)	{//means no lock yet happened
+			if(this.isEdited)
+				saveFile();
 			new ActionRequest().unlockLines(user, this.proj, 1);
 		}
 		new ActionRequest().loginProject(this.user, this.proj);
@@ -543,11 +613,7 @@ public class ControllerEditor {
 	public void logout() throws IOException {
 		Boolean isExit = ConfirmBox.display("Logout", "are you shure you want to logout?");
 		if (isExit) {
-			if(this.caretLine >= 0)	{//means no lock yet happened
-				new ActionRequest().unlockLines(user, this.proj, 1);
-			}
-			new ActionRequest().logoutProject(this.user, this.proj);
-			this.editorStage.close();
+			closeStage();
 
 			new ControllerLogin().showStage();
 		}
@@ -563,7 +629,7 @@ public class ControllerEditor {
 	public void deleteProject() throws IOException {
 		new ControllerDeleteProject(this, user).showStage();
 		if (this.isDeleted) {
-			this.editorStage.close();
+			closeStage();
 			newFileFunc();
 			this.isDeleted = false;
 		}
