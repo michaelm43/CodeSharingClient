@@ -673,6 +673,17 @@ public class ControllerEditor {
 		return checkErrors(prefix, prefixLine,this.getProj().getLinesOfCode().get(prefixLine).getCode(), false) + "\n" + checkErrors(postfix, prefixLine," ", false);
 	}
 	
+	/*
+	 * when the user is trying to lock a line that already locked
+	 * or backspace / delete flows to other locked line, notify the user and cancel the action
+	 */
+	public void errorMessage() {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle("Warning Dialog");
+		//alert.setHeaderText("Could not connect to Server!");
+		alert.setContentText("The change you created afects other users locked lines");
+		alert.showAndWait();
+	}
 	
 	public String checkErrors(String str, int strLine,String restoreStr,boolean isDeleted) throws IOException {
 		Project tempProj = new Project(this.proj);

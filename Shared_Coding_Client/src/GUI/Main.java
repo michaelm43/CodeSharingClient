@@ -10,6 +10,8 @@ import HttpRequests.UserRequests;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -40,22 +42,34 @@ public class Main extends Application{
 		window.setMinWidth(250);
 		
 
-		TextField tfIP = new TextField("192.168.1.22");
+		TextField tfIP = new TextField("10.0.1.18");
 		TextField tfPort = new TextField("8089");
 		
 		
 		Button btnConnect = new Button("Connect");
 		
 		btnConnect.setOnAction(e->{
-			new ActionRequest(tfIP.getText());
-			new UserRequests(tfIP.getText());
-			new ElementRequest(tfIP.getText());
+			new ActionRequest();
+			String ip = tfIP.getText();
+			String port = tfPort.getText();
+			if(new ActionRequest().connect(ip, port)) {
+				new UserRequests(ip, port);
+				new ElementRequest(ip, port);				
 			
-			window.close();
 			
-			ControllerLogin loginController = new ControllerLogin();
+				window.close();
 			
-			loginController.showStage();
+				ControllerLogin loginController = new ControllerLogin();
+			
+				loginController.showStage();
+			}
+			else {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error Dialog");
+				alert.setHeaderText("Could not connect to Server!");
+				alert.setContentText("check the the ip and the port and try again");
+				alert.showAndWait();
+			}
 		});
 		
 		VBox layout = new VBox(10);

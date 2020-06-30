@@ -14,19 +14,14 @@ import Logic.User;
 
 public class ActionRequest {
 	
-	public static String IP;//= "192.168.1.22";
+	public static String IP = "";//= "192.168.1.22";
 //	public static String IP = "192.168.1.229";
-	public static String PORT = "8089";
+	public static String PORT = ""; //"8089";
 	
-	private String baseUrl = "http://" + IP + ":" + PORT + "/";
+	private String baseUrl = "http://";
 	
 	public ActionRequest() {
 		super();
-	}
-	
-	public ActionRequest(String ip) {
-		super();
-		ActionRequest.IP = ip;
 	}
 	
 	public boolean addNewUser(User user, Project proj, String email) {
@@ -427,5 +422,42 @@ public class ActionRequest {
 			System.out.println(e.getMessage());
 		}
 		return isRegistered;
+	}
+	
+	public boolean connect(String ip, String port) {
+		
+		try {
+			URL url = new URL(baseUrl +  ip + ":" + port + "/" + "actions");
+			
+			Action action = new Action("connect",null,null,null);
+			
+			Gson gson = new Gson();	
+		    String json = gson.toJson(action); 
+
+		    System.out.println("before httpConnection");
+						
+			///URL and parameters for the connection.
+			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+			httpConnection.setDoOutput(true);
+			httpConnection.setRequestMethod("POST");
+			httpConnection.setRequestProperty("Content-Type", "application/json");
+			httpConnection.setRequestProperty("Accept", "application/json");
+			
+			DataOutputStream wr = new DataOutputStream(httpConnection.getOutputStream());
+			wr.write(json.getBytes());
+			httpConnection.getResponseCode();
+		
+			
+			//creates a reader buffer
+			ActionRequest.IP = ip;
+			ActionRequest.PORT = port;
+		
+		} catch (Exception e) {
+			System.out.println("Error Message");
+			System.out.println(e.getClass().getSimpleName());
+			System.out.println(e.getMessage());
+			return false;
+		}
+		return true;	
 	}
 }

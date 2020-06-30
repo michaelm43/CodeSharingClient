@@ -15,7 +15,7 @@ public class ElementRequest {
 	
 	public static String IP ;//= "192.168.1.22";
 //	public static String IP = "192.168.1.229";
-	public static String PORT = "8089";
+	public static String PORT;
 	
 	private String baseUrl = "http://" + IP + ":" + PORT + "/elements/";
 	
@@ -23,9 +23,10 @@ public class ElementRequest {
 		super();
 	}
 	
-	public ElementRequest(String ip) {
+	public ElementRequest(String ip,String port) {
 		super();
 		ElementRequest.IP = ip;
+		ElementRequest.PORT = port; 
 	}
 	
 	/*
