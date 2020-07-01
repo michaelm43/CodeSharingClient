@@ -5,8 +5,15 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import Logic.Action;
 import Logic.Project;
@@ -18,7 +25,7 @@ public class ActionRequest {
 //	public static String IP = "192.168.1.229";
 	public static String PORT = ""; //"8089";
 	
-	private String baseUrl = "http://";
+	private static String baseUrl = "http://";
 	
 	public ActionRequest() {
 		super();
@@ -82,6 +89,7 @@ public class ActionRequest {
 	}
 	
 	public boolean lockLines(User user, Project proj, int start, int count) {
+		System.out.println("url = " +  baseUrl);
 		boolean isRegistered = false;
 		try {
 			
@@ -140,6 +148,7 @@ public class ActionRequest {
 	}
 
 	public boolean unlockLines(User user, Project proj, int length) {
+		System.out.println("ip = " + IP + "post = " + PORT);
 		boolean isRegistered = false;
 		try {
 			
@@ -196,17 +205,18 @@ public class ActionRequest {
 		return isRegistered;
 	}
 	
-	public Project editCode(User user, Project proj, String txt, String event) {
+	public Project editCode(User user, Project proj, String txt) {
+		System.out.println("ip = " + IP + "post = " + PORT);
 		boolean isRegistered = false;
 		Project newProj = null;
 		try {
 			
 			URL url = new URL(baseUrl + "actions");
 			
-			Action action = new Action("edit-code", proj.getCreator(), proj.getName(), user.getEmail());
+			Action action = new Action("edit-code-save", proj.getCreator(), proj.getName(), user.getEmail());
 			
 			action.getProperties().put("code", txt);
-			action.getProperties().put("event", event);
+			//action.getProperties().put("event", event);
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
@@ -257,6 +267,80 @@ public class ActionRequest {
 			System.out.println(e.getMessage());
 		}
 		return newProj;
+	}
+	
+	public List<Object> editCodeWithLocks(User user, Project proj, String txt, String event) {
+		boolean isRegistered = false;
+		Project newProj = null;
+		String error = "";
+		try {
+			
+			URL url = new URL(baseUrl + "actions");
+			
+			Action action = new Action("edit-code-event", proj.getCreator(), proj.getName(), user.getEmail());
+			
+			action.getProperties().put("code", txt);
+			action.getProperties().put("event", event);
+			
+			Gson gson = new Gson();	
+		    String json = gson.toJson(action); 
+		    System.out.println(json);
+						
+			///URL and parameters for the connection.
+			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+			httpConnection.setDoOutput(true);
+			httpConnection.setRequestMethod("POST");
+			httpConnection.setRequestProperty("Content-Type", "application/json");
+			httpConnection.setRequestProperty("Accept", "application/json");
+			
+			DataOutputStream wr = new DataOutputStream(httpConnection.getOutputStream());
+			wr.write(json.getBytes());
+			Integer responseCode = httpConnection.getResponseCode();
+			System.out.println("responseCode : " + responseCode);
+		
+			BufferedReader bufferReader;
+			
+			//creates a reader buffer
+			if (responseCode >199 && responseCode<300) {
+				bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+				isRegistered = true;
+			}
+			else {
+				bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getErrorStream()));
+				isRegistered = false;
+			}
+			
+			//To recive the response
+			StringBuilder content = new StringBuilder();
+			String line;
+			while((line = bufferReader.readLine()) != null) 
+				content.append(line).append("\n");
+			bufferReader.close();
+			
+			if(isRegistered) {
+				newProj = gson.fromJson(content.toString(), Project.class);
+				//ErrorClass error = gson.fromJson(content.toString(), ErrorClass.class);
+				
+				JsonObject jsonObject = gson.fromJson(content.toString(), JsonObject.class);
+
+		        JsonElement jsonError = jsonObject.get("error");
+		        error = jsonError.getAsString(); // check
+		        System.out.println("type = " + error);
+			}
+			
+			System.out.println(content.toString());
+			
+		
+		} catch (Exception e) {
+			
+			System.out.println("Error Message");
+			System.out.println(e.getClass().getSimpleName());
+			System.out.println(e.getMessage());
+		}
+		List<Object> list = new ArrayList<>();
+		list.add(error);
+		list.add(newProj);
+		return list;
 	}
 
 	public boolean deleteProject(User user, Project proj) {
@@ -451,6 +535,7 @@ public class ActionRequest {
 			//creates a reader buffer
 			ActionRequest.IP = ip;
 			ActionRequest.PORT = port;
+			ActionRequest.baseUrl = baseUrl + IP + ":" + PORT + "/";
 		
 		} catch (Exception e) {
 			System.out.println("Error Message");
@@ -459,5 +544,28 @@ public class ActionRequest {
 			return false;
 		}
 		return true;	
+	}
+
+	
+}
+
+class ErrorClass {
+	private String error;
+	
+	public ErrorClass() {
+		super();
+	}
+	
+	public ErrorClass(String error) {
+		super();
+		this.error = error;
+	}
+	
+	public void setError(String error) {
+		this.error = error;
+	}
+	
+	public String getError() {
+		return error;
 	}
 }

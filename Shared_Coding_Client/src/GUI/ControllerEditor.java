@@ -33,8 +33,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -246,7 +248,7 @@ public class ControllerEditor {
 					String temp;
 					try {
 						temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
-						this.proj = new ActionRequest().editCode(user, proj, temp, "MOUSE");
+						this.proj = new ActionRequest().editCode(user, proj, temp);
 						//TODO fix caret jump to the end of line
 						this.codeArea.clear();
 						this.codeArea.replaceText(0, 0, this.proj.toString());
@@ -291,7 +293,7 @@ public class ControllerEditor {
 					String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
 					this.caretLine = codeArea.getCurrentParagraph();
 					this.caretCol = codeArea.getCaretColumn();
-					this.proj = new ActionRequest().editCode(user, proj, temp, "CTRL+S");
+					this.proj = new ActionRequest().editCode(user, proj, temp);
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
 					this.codeArea.moveTo(this.caretLine, this.caretCol);
@@ -321,13 +323,25 @@ public class ControllerEditor {
 				try {
 					temp = checkTheLine(this.caretLine, e.getCode());
 					
-					this.proj = new ActionRequest().editCode(user, proj, temp, e.getCode().toString());
+					List<Object> tempList;
+					String error;
+					
+					tempList = new ActionRequest().editCodeWithLocks(user, proj, temp, e.getCode().toString());
+					error = (String) tempList.get(0);		//First value is error
+					this.proj = (Project) tempList.get(1);	//Second value is the project
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
+					
+					if(!error.equals("")) {
+						line = this.caretLine;
+						col = this.caretCol;
+						errorMessage(error);
+					}
+					
 					this.codeArea.moveTo(line,col);
 					getLabelFromString();
 					//2) unlock the last line
-					if(this.caretLine < getNumberOfLines())
+					/*if(this.caretLine < getNumberOfLines())
 						new ActionRequest().unlockLines(user, this.proj, 1);
 					//3) lock the new line
 					this.caretLine = line;
@@ -336,7 +350,7 @@ public class ControllerEditor {
 					if(this.caretLine == getNumberOfLines()) 
 						this.caretLine--;
 					if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) 
-						this.originalLine = this.codeArea.getText(this.caretLine);
+						this.originalLine = this.codeArea.getText(this.caretLine);*/ //TODO check
 				} catch (IOException err) {
 					err.printStackTrace();
 				}
@@ -357,96 +371,7 @@ public class ControllerEditor {
 		}
 	}
 
-	//TODO CHANGE
-	private void startLock() {
-		// get the caret line.
-		this.caretLine = codeArea.getCurrentParagraph();
-
-		// check if not already locked, if not make the locks
-		if (this.proj.Lock(this.caretLine, this.user)) {
-			this.editCode.clear();
-			createEditWindow();
-			this.editCode.replaceText(0, 0, this.proj.toString(this.caretLine));
-		}
-		// invoke action to lock lines in db! TODO CHECK IF LOCKS WORK
-		// new ActionRequest().lockLines(user, proj,
-		// proj.get2LinesUpFromCaret(caretLine), proj.get2LinesDownFromCaret(caretLine)
-		// - proj.get2LinesUpFromCaret(caretLine));
-	}
-
-	//TODO CHANGE
-	private void createEditWindow() {
-		// add line numbers to the left of code area
-		editCode.setParagraphGraphicFactory(LineNumberFactory.get(editCode));
-
-		// recompute the syntax highlighting 500 ms after user stops editing
-		Subscription cleanupWhenNoLongerNeedIt = editCode
-				// plain changes = ignore style changes that are emitted when syntax
-				// highlighting is reapplied
-				// multi plain changes = save computation by not rerunning the code multiple
-				// times
-				// when making multiple changes (e.g. renaming a method at multiple parts in
-				// file)
-				.multiPlainChanges()
-				// do not emit an event until 500 ms have passed since the last emission of
-				// previous stream
-				.successionEnds(Duration.ofMillis(500))
-				// run the following code block when previous stream emits an event
-				.subscribe(ignore -> editCode.setStyleSpans(0, computeHighlighting(editCode.getText())));
-
-		// when no longer need syntax highlighting and wish to clean up memory leaks
-		// run: `cleanupWhenNoLongerNeedIt.unsubscribe();`
-
-		// auto-indent: insert previous line's indents on enter
-		final Pattern whiteSpace = Pattern.compile("^\\s+");
-		editCode.addEventHandler(KeyEvent.KEY_PRESSED, KE -> {
-			if (KE.getCode() == KeyCode.ENTER) {
-				int caretPosition = editCode.getCaretPosition();
-				int currentParagraph = editCode.getCurrentParagraph();
-				Matcher m0 = whiteSpace.matcher(editCode.getParagraph(currentParagraph - 1).getSegments().get(0));
-				if (m0.find())
-					Platform.runLater(() -> editCode.insertText(caretPosition, m0.group()));
-			}
-		});
-
-		BorderPane pane = new BorderPane();
-		pane.setCenter(new StackPane(new VirtualizedScrollPane<>(editCode)));
-		// width, hight
-
-		btnSend = new Button("send");
-		btnSend.setOnAction(e -> {
-			try {
-				sendNewCode();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		});
-		pane.setBottom(btnSend);
-		BorderPane.setAlignment(btnSend, Pos.CENTER_RIGHT);
-
-		Scene editCodeScene = new Scene(pane, this.editorStage.getX() + this.editorStage.getWidth() / 2, 200);
-		editCodeScene.getStylesheets().add("GUI/LayoutEditor.css");
-		addCodeStage.setScene(editCodeScene);
-		addCodeStage.setTitle("edit code");
-		addCodeStage.setResizable(false);
-		// set on left side
-		addCodeStage.setX(0);
-		// set at the hight of the caret
-		addCodeStage.setY(200);
-		addCodeStage.setOnCloseRequest(e -> {
-			e.consume();
-			try {
-				sendNewCode();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		});
-
-		addCodeStage.show();
-	}
-
+	
 	private static StyleSpans<Collection<String>> computeHighlighting(String text) {
 		Matcher matcher = PATTERN.matcher(text);
 		int lastKwEnd = 0;
@@ -505,22 +430,16 @@ public class ControllerEditor {
 	
 	private void saveFile() throws IOException {
 		String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
-		this.proj = new ActionRequest().editCode(user, proj, temp, "CTRL+S");
+		this.proj = new ActionRequest().editCode(user, proj, temp);
 	}
 
 	public void sendNewCode() throws IOException {
 		addCodeStage.close();
-//		Project tempProj = new Project(proj);
-//		tempProj.setText(this.caretLine, editCode.getText());
-		//String errors = compileProgram(tempProj.toString());
-		//if(errors != null) // THERE ARE ERRORS, NOT COMPILING
-		//fixProjectWithNoCompilerErrors(editCode.getText());
-			//editCode.replaceText("/*" + editCode.getText() + "*/");
-		this.proj.setText(this.caretLine, editCode.getText());// TODO CODE IN /*
+		this.proj.setText(this.caretLine, editCode.getText());
 		this.codeArea.clear();
 
 		// update server
-		this.proj = new ActionRequest().editCode(user, proj,editCode.getText(), "NONE");
+		this.proj = new ActionRequest().editCode(user, proj,editCode.getText());
 		if(this.proj != null) {
 			this.proj = new Project(this.proj);
 			this.codeArea.replaceText(0, 0, this.proj.toString());
@@ -677,11 +596,11 @@ public class ControllerEditor {
 	 * when the user is trying to lock a line that already locked
 	 * or backspace / delete flows to other locked line, notify the user and cancel the action
 	 */
-	public void errorMessage() {
+	public void errorMessage(String msg) {
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setTitle("Warning Dialog");
 		//alert.setHeaderText("Could not connect to Server!");
-		alert.setContentText("The change you created afects other users locked lines");
+		alert.setContentText(msg);
 		alert.showAndWait();
 	}
 	
