@@ -239,127 +239,10 @@ public class ControllerEditor {
 		//codeArea.setEditable(false);
 		
 		//TODO CHANGE
-		codeArea.setOnMouseClicked(e -> {
-			int col = codeArea.getCaretColumn();
-			System.out.println("Line = " + codeArea.getCurrentParagraph() + ", caretLine = " + this.caretLine);
-			if(codeArea.getCurrentParagraph() != this.caretLine) {
-				int line = codeArea.getCurrentParagraph();
-				if(isEdited) {
-					String temp;
-					try {
-						temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
-						this.proj = new ActionRequest().editCode(user, proj, temp);
-						//TODO fix caret jump to the end of line
-						this.codeArea.clear();
-						this.codeArea.replaceText(0, 0, this.proj.toString());
-						this.codeArea.moveTo(line,col);
-						getLabelFromString();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-				//2) unlock the last line
-				if(this.caretLine >= 0)	//means no lock yet happened
-					new ActionRequest().unlockLines(user, this.proj, 1);
-				//3) lock the new line
-				this.caretLine = line;
-				//TODO lock on file
-				if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) 
-					this.originalLine = this.codeArea.getText(this.caretLine);
-			}
-			this.caretCol = col;
-		});
+		codeArea.setOnMouseClicked(e -> mouseClicked());
 		
 		//TODO fix all of that in a method!
-		codeArea.setOnKeyPressed(e -> {
-			System.out.println(e.toString());
-			int col = this.codeArea.getCaretColumn();
-			
-			System.out.println();
-			//char ch = e.getText().charAt(0);
-			if(e.getText().length() > 0)
-				col++;
-			isEdited = true;
-			//TODO add flag for change!
-			/*
-			 * if user saved the file (ctrl + s)
-			 * 1) update the current line
-			 */
-			if(e.getCode() == KeyCode.S && e.isControlDown()) {
-				System.out.println("in CTRL + Save");
-				//int col = this.codeArea.getCaretColumn();
-				try {
-					String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
-					this.caretLine = codeArea.getCurrentParagraph();
-					this.caretCol = codeArea.getCaretColumn();
-					this.proj = new ActionRequest().editCode(user, proj, temp);
-					this.codeArea.clear();
-					this.codeArea.replaceText(0, 0, this.proj.toString());
-					this.codeArea.moveTo(this.caretLine, this.caretCol);
-					getLabelFromString();
-					//TODO lock!
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				isEdited = false;
-			}
-			
-
-			/*
-			 * if the line number was changed 
-			 * 1) need to update the db		TODO
-			 * 2) unlock the last line		TODO
-			 * 3) lock the new line and wait for another update		TODO 
-			 */
-			else if(codeArea.getCurrentParagraph() != this.caretLine 
-					|| getNumberOfLines() < proj.getLinesOfCode().size()){	//the line was changed
-				//System.out.println(checkTheLine(this.codeArea.getText(this.caretLine), e.getCode()));
-				//TODO check compilation
-				String temp;
-				//int col = this.codeArea.getCaretColumn();
-				int line = this.codeArea.getCurrentParagraph();
-				try {
-					temp = checkTheLine(this.caretLine, e.getCode());
-					
-					List<Object> tempList;
-					String error;
-					
-					tempList = new ActionRequest().editCodeWithLocks(user, proj, temp, e.getCode().toString());
-					error = (String) tempList.get(0);		//First value is error
-					this.proj = (Project) tempList.get(1);	//Second value is the project
-					this.codeArea.clear();
-					this.codeArea.replaceText(0, 0, this.proj.toString());
-					
-					if(!error.equals("")) {
-						line = this.caretLine;
-						col = this.caretCol;
-						errorMessage(error);
-					}
-					
-					this.codeArea.moveTo(line,col);
-					getLabelFromString();
-					//2) unlock the last line
-					/*if(this.caretLine < getNumberOfLines())
-						new ActionRequest().unlockLines(user, this.proj, 1);
-					//3) lock the new line
-					this.caretLine = line;
-					//this.caretCol = col;
-					//TODO lock on file
-					if(this.caretLine == getNumberOfLines()) 
-						this.caretLine--;
-					if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) 
-						this.originalLine = this.codeArea.getText(this.caretLine);*/ //TODO check
-				} catch (IOException err) {
-					err.printStackTrace();
-				}
-				isEdited = false;
-			}
-			this.caretCol = col;
-			if(this.caretLine < getNumberOfLines()) // IF THE LINE EXISTS
-				this.beforeChange= this.codeArea.getText(this.caretLine);
-		});
+		codeArea.setOnKeyPressed(e -> keyPressed(e));
 	}
 	
 
@@ -703,53 +586,135 @@ public class ControllerEditor {
 		return this.codeArea.getText().split("\n").length;
 	}
 	
+	/*
+	 * caret is changing line. save the proj and move the caret to the new location
+	 */
+	public void mouseClicked() {
+		int col = codeArea.getCaretColumn();
+		System.out.println("Line = " + codeArea.getCurrentParagraph() + ", caretLine = " + this.caretLine);
+		if(codeArea.getCurrentParagraph() != this.caretLine) {
+			int line = codeArea.getCurrentParagraph();
+			if(isEdited) {
+				String temp;
+				try {
+					temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
+					this.proj = new ActionRequest().editCode(user, proj, temp);
+					//TODO fix caret jump to the end of line
+					this.codeArea.clear();
+					this.codeArea.replaceText(0, 0, this.proj.toString());
+					getLabelFromString();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			//2) unlock the last line
+			if(this.caretLine >= 0)	//means no lock yet happened
+				new ActionRequest().unlockLines(user, this.proj, 1);
+			//3) lock the new line
+			//TODO lock on file
+			if(new ActionRequest().lockLines(user, this.proj, line, 1)) {
+				this.originalLine = this.codeArea.getText(line);
+				this.caretLine = line;
+			}
+			else {
+				errorMessage("the line you are trying to reach is locked");
+				col = this.caretCol;
+			}
+		}
+		this.caretCol = col;
+		this.codeArea.moveTo(this.caretLine,this.caretCol);
+	}
 	
-//	public String fixProjectWithNoCompilerErrors(String newLine) throws IOException{
-//		Project tempProj = new Project(this.proj);
-//		
-//		//TODO check empty spaces
-//		/*
-//		 * given the line was a comment
-//		 * when it was edited
-//		 * than delete comment and try to compile it
-//		 */
-//		if(newLine.length()>1 && newLine.subSequence(0, 2).equals("//"))
-//			newLine = newLine.substring(2);
-//		
-//		tempProj.setText(this.caretLine, newLine);
-//		System.out.println("first check : " + newLine);
-//		
-//		/*
-//		 * GIVEN new string line
-//		 * WHEN the line still did not added to the file
-//		 * THAN check the compiler if the new line creates errors
-//		 */
-//		String errors = compileProgram(tempProj.toString()); 
-//		
-//		/*
-//		 * there is an error in the line, make it a comment
-//		 */
-//		if(errors != null)
-//			//compile errors
-//			newLine = "//" + newLine;
-//		
-//		System.out.println("second check : " + newLine);
-//		
-//		tempProj.getLinesOfCode().get(this.caretLine).setCode(newLine);
-//		errors = compileProgram(tempProj.toString());
-//		
-//		/*
-//		 * check if the the project do not have compilation errors.
-//		 * if it does:
-//		 * OR an important line was changed, revert and add the changes as comment
-//		 * OR an important line was deleted. discard changes and add a comment with information
-//		 */
-//		if(errors != null)
-//			//compile errors
-//			newLine = this.beforeChange + "\n //error occurred";
-//		
-//		System.out.println("third check : " + newLine);
-//		
-//		return newLine;
-//	}
+	/*
+	 * key pressed handler
+	 * 2 cases:
+	 * 1) ctrl+s. save on place with no locks.
+	 * 2) caret changed line. save with new locks.
+	 */
+	public void keyPressed(KeyEvent e) {
+		int col = this.codeArea.getCaretColumn();
+		
+		//char ch = e.getText().charAt(0);
+		if(e.getText().length() > 0)
+			col++;
+		isEdited = true;
+		//TODO add flag for change!
+		/*
+		 * if user saved the file (ctrl + s)
+		 * 1) update the current line
+		 */
+		if(e.getCode() == KeyCode.S && e.isControlDown()) {
+			//int col = this.codeArea.getCaretColumn();
+			try {
+				String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
+				this.caretLine = codeArea.getCurrentParagraph();
+				this.caretCol = codeArea.getCaretColumn();
+				this.proj = new ActionRequest().editCode(user, proj, temp);
+				this.codeArea.clear();
+				this.codeArea.replaceText(0, 0, this.proj.toString());
+				this.codeArea.moveTo(this.caretLine, this.caretCol);
+				getLabelFromString();
+				//TODO lock!
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			isEdited = false;
+		}
+		
+
+		/*
+		 * if the line number was changed 
+		 * 1) need to update the db		TODO
+		 * 2) unlock the last line		TODO
+		 * 3) lock the new line and wait for another update		TODO 
+		 */
+		else if(codeArea.getCurrentParagraph() != this.caretLine 
+				|| getNumberOfLines() < proj.getLinesOfCode().size()){	//the line was changed
+			//System.out.println(checkTheLine(this.codeArea.getText(this.caretLine), e.getCode()));
+			//TODO check compilation
+			String temp;
+			//int col = this.codeArea.getCaretColumn();
+			int line = this.codeArea.getCurrentParagraph();
+			try {
+				temp = checkTheLine(this.caretLine, e.getCode());
+				
+				List<Object> tempList;
+				String error;
+				
+				tempList = new ActionRequest().editCodeWithLocks(user, proj, temp, e.getCode().toString());
+				error = (String) tempList.get(0);		//First value is error
+				this.proj = (Project) tempList.get(1);	//Second value is the project
+				this.codeArea.clear();
+				this.codeArea.replaceText(0, 0, this.proj.toString());
+				
+				if(!error.equals("")) {
+					line = this.caretLine;
+					col = this.caretCol;
+					errorMessage(error);
+				}
+				
+				this.codeArea.moveTo(line,col);
+				getLabelFromString();
+				//2) unlock the last line
+				/*if(this.caretLine < getNumberOfLines())
+					new ActionRequest().unlockLines(user, this.proj, 1);
+				//3) lock the new line
+				this.caretLine = line;
+				//this.caretCol = col;
+				//TODO lock on file
+				if(this.caretLine == getNumberOfLines()) 
+					this.caretLine--;
+				if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) 
+					this.originalLine = this.codeArea.getText(this.caretLine);*/ //TODO check
+			} catch (IOException err) {
+				err.printStackTrace();
+			}
+			isEdited = false;
+		}
+		this.caretCol = col;
+		if(this.caretLine < getNumberOfLines()) // IF THE LINE EXISTS
+			this.beforeChange= this.codeArea.getText(this.caretLine);
+	}
 }
