@@ -614,7 +614,7 @@ public class ControllerEditor {
 		System.out.println("Line = " + codeArea.getCurrentParagraph() + ", caretLine = " + this.caretLine);
 		if(codeArea.getCurrentParagraph() != this.caretLine) {
 			int line = codeArea.getCurrentParagraph();
-			if(isEdited) {
+			if(this.caretLine>=0) {
 				String temp;
 				try {
 					temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
@@ -623,6 +623,13 @@ public class ControllerEditor {
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
 					getLabelFromString();
+					int caret = this.caretLine;
+					setCaretLine();
+					System.out.println("line = " + line);
+					System.out.println("this.caretLine arfter = " + this.caretLine);
+					this.caretLine = line + (this.caretLine-caret);
+					System.out.println("caret = " + caret);
+					System.out.println("this.caretLine arfter = " + this.caretLine);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -633,9 +640,8 @@ public class ControllerEditor {
 				new ActionRequest().unlockLines(user, this.proj, 1);
 			//3) lock the new line
 			//TODO lock on file
-			if(new ActionRequest().lockLines(user, this.proj, line, 1)) {
+			if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) {
 				this.originalLine = this.codeArea.getText(line);
-				setCaretLine();
 			}
 			else {
 				new ActionRequest().lockLines(user, this.proj, this.caretLine, 1);
@@ -752,5 +758,7 @@ public class ControllerEditor {
 				break;
 			}
 		}
+		if(this.caretLine == -1)
+			this.caretLine = this.codeArea.getCurrentParagraph();
 	}
 }
