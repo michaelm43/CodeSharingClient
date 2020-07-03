@@ -635,7 +635,7 @@ public class ControllerEditor {
 			//TODO lock on file
 			if(new ActionRequest().lockLines(user, this.proj, line, 1)) {
 				this.originalLine = this.codeArea.getText(line);
-				this.caretLine = line;
+				setCaretLine();
 			}
 			else {
 				new ActionRequest().lockLines(user, this.proj, this.caretLine, 1);
@@ -645,7 +645,7 @@ public class ControllerEditor {
 		}
 		this.caretCol = col;
 		this.codeArea.moveTo(this.caretLine,this.caretCol);
-		this.beforeChange = this.editCode.getText(this.caretLine);
+		this.beforeChange = this.codeArea.getText(this.caretLine);
 	}
 	
 	/*
@@ -670,7 +670,7 @@ public class ControllerEditor {
 			//int col = this.codeArea.getCaretColumn();
 			try {
 				String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
-				this.caretLine = codeArea.getCurrentParagraph();
+				setCaretLine();
 				this.caretCol = codeArea.getCaretColumn();
 				this.proj = new ActionRequest().editCode(user, proj, temp);
 				this.codeArea.clear();
@@ -683,7 +683,7 @@ public class ControllerEditor {
 				e1.printStackTrace();
 			}
 			isEdited = false;
-			this.beforeChange = this.editCode.getText(this.caretLine);
+			this.beforeChange = this.codeArea.getText(this.caretLine);
 		}
 		
 
@@ -711,6 +711,7 @@ public class ControllerEditor {
 				this.proj = (Project) tempList.get(1);	//Second value is the project
 				this.codeArea.clear();
 				this.codeArea.replaceText(0, 0, this.proj.toString());
+				setCaretLine();
 				
 				if(!error.equals("")) {
 					line = this.caretLine;
@@ -719,7 +720,8 @@ public class ControllerEditor {
 				}
 				
 				this.codeArea.moveTo(line,col);
-				this.caretLine = line;
+				//this.caretLine = line;
+				
 				getLabelFromString();
 				//2) unlock the last line
 				/*if(this.caretLine < getNumberOfLines())
@@ -740,5 +742,15 @@ public class ControllerEditor {
 		this.caretCol = col;
 		if(this.caretLine < getNumberOfLines()) // IF THE LINE EXISTS
 			this.beforeChange = this.codeArea.getText(this.caretLine);
+	}
+	
+	public void setCaretLine() {
+		for(ActiveUser au: this.proj.getActiveUsers())
+		{
+			if(user.getEmail().equals(au.getEmail())) {
+				this.caretLine = au.getStart();
+				break;
+			}
+		}
 	}
 }
