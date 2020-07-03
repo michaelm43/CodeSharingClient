@@ -475,15 +475,14 @@ public class ControllerEditor {
 		return checkErrors(prefix, prefixLine,this.getProj().getLinesOfCode().get(prefixLine).getCode(), false) + "\n" + checkErrors(postfix, prefixLine," ", false);
 	}
 	
-	public String checkErrorsDelete(String str, int strLine,String restoreStr,boolean isDeleted) throws IOException {
+	public String checkErrorsDelete(String prefix, String postfix, int strLine,String restoreStr,boolean isDeleted) throws IOException {
 		Project tempProj = new Project(this.proj);
 		String errors;
 			
-		tempProj.setText(strLine, str);
+		tempProj.setText(strLine, prefix);
 		errors = compileProgram(tempProj.toString());
-		System.out.println("in first = " + errors);
 		if(errors == null)
-			return str; 
+			return prefix + postfix; 
 		else
 			txtConsole.setText(errors);
 		
@@ -491,9 +490,9 @@ public class ControllerEditor {
 		//if(check != null)
 			//return str + "\n" + check;
 		
-		tempProj.setText(strLine,"//" + str + tempProj.getLinesOfCode().get(strLine+1).getCode());
+		tempProj.setText(strLine,"//" + prefix + postfix);
 		tempProj.removeLine(strLine+1);
-		return checkSecondLayerError(tempProj, strLine, "//" + str, restoreStr);
+		return checkSecondLayerError(tempProj, strLine, "//" + prefix, restoreStr);
 	}
 	
 	/*
@@ -514,7 +513,6 @@ public class ControllerEditor {
 			
 		tempProj.setText(strLine, str);
 		errors = compileProgram(tempProj.toString());
-		System.out.println("in first = " + errors);
 		if(errors == null)
 			return str; 
 		else
@@ -536,11 +534,6 @@ public class ControllerEditor {
 		System.out.println("*********\n" + firstLayerProj.toString());
 		if (errors == null)
 			return changes;
-		
-		
-		//String check = checkIfBracketsError(errors, isDeleted);
-		//if(check != null)
-			//return check;
 		
 		changes = restoreStr + "\t // 2nd Layer Compilation ERROR, revert!";		
 		return changes;
@@ -599,7 +592,7 @@ public class ControllerEditor {
 			str = codeArea.getText(codeArea.getCurrentParagraph());
 			prefix =  str.substring(0,this.codeArea.getCaretColumn());
 			postfix = str.substring(codeArea.getCaretColumn());
-			return checkErrors(prefix, strLine, restoreStr + "\n" + postfix, true) + " " + postfix;
+			return checkErrorsDelete(prefix, postfix,strLine, restoreStr + "\n" + postfix, true);
 		}
 		default:
 			break;
