@@ -475,6 +475,27 @@ public class ControllerEditor {
 		return checkErrors(prefix, prefixLine,this.getProj().getLinesOfCode().get(prefixLine).getCode(), false) + "\n" + checkErrors(postfix, prefixLine," ", false);
 	}
 	
+	public String checkErrorsDelete(String str, int strLine,String restoreStr,boolean isDeleted) throws IOException {
+		Project tempProj = new Project(this.proj);
+		String errors;
+			
+		tempProj.setText(strLine, str);
+		errors = compileProgram(tempProj.toString());
+		System.out.println("in first = " + errors);
+		if(errors == null)
+			return str; 
+		else
+			txtConsole.setText(errors);
+		
+		//String check = checkIfBracketsError(errors,isDeleted);
+		//if(check != null)
+			//return str + "\n" + check;
+		
+		tempProj.setText(strLine,"//" + str + tempProj.getLinesOfCode().get(strLine+1).getCode());
+		tempProj.removeLine(strLine+1);
+		return checkSecondLayerError(tempProj, strLine, "//" + str, restoreStr);
+	}
+	
 	/*
 	 * when the user is trying to lock a line that already locked
 	 * or backspace / delete flows to other locked line, notify the user and cancel the action
@@ -493,12 +514,15 @@ public class ControllerEditor {
 			
 		tempProj.setText(strLine, str);
 		errors = compileProgram(tempProj.toString());
+		System.out.println("in first = " + errors);
 		if(errors == null)
 			return str; 
+		else
+			txtConsole.setText(errors);
 		
-		String check = checkIfBracketsError(errors,isDeleted);
-		if(check != null)
-			return str + "\n" + check;
+		//String check = checkIfBracketsError(errors,isDeleted);
+		//if(check != null)
+			//return str + "\n" + check;
 		
 		tempProj.setText(strLine,"//" + str);
 		return checkSecondLayerError(tempProj, strLine, "//" + str, restoreStr);
@@ -507,14 +531,16 @@ public class ControllerEditor {
 	public String checkSecondLayerError(Project firstLayerProj, int changedLine, String changes,String restoreStr) throws IOException {
 		String errors;
 				
-		errors = compileProgram(firstLayerProj.toString());
-		
+		errors = compileProgram(firstLayerProj.toString()); 
+		System.out.println("in second = " + errors);
+		System.out.println("*********\n" + firstLayerProj.toString());
 		if (errors == null)
 			return changes;
 		
-		String check = checkIfBracketsError(errors, isDeleted);
-		if(check != null)
-			return check;
+		
+		//String check = checkIfBracketsError(errors, isDeleted);
+		//if(check != null)
+			//return check;
 		
 		changes = restoreStr + "\t // 2nd Layer Compilation ERROR, revert!";		
 		return changes;
@@ -554,7 +580,7 @@ public class ControllerEditor {
 			//TODO check if needed line = ""
 		}
 		case BACK_SPACE:{
-			//TODO check begining of file
+			//TODO check beginning of file
 			String prefix;
 			String postfix;
 			if(strLine < getNumberOfLines()) 
@@ -565,7 +591,7 @@ public class ControllerEditor {
 			
 			prefix =  str.substring(0,this.codeArea.getCaretColumn());
 			postfix = str.substring(codeArea.getCaretColumn());
-			return prefix + " " + checkErrors(postfix, strLine,prefix +"\n" + restoreStr,true);
+			return prefix + " " + checkErrors(postfix, strLine,"\n" + restoreStr,true);
 		}
 		case DELETE:{
 			String prefix;
@@ -573,7 +599,7 @@ public class ControllerEditor {
 			str = codeArea.getText(codeArea.getCurrentParagraph());
 			prefix =  str.substring(0,this.codeArea.getCaretColumn());
 			postfix = str.substring(codeArea.getCaretColumn());
-			return checkErrors(prefix, strLine, restoreStr + "\n" + postfix, true);
+			return checkErrors(prefix, strLine, restoreStr + "\n" + postfix, true) + " " + postfix;
 		}
 		default:
 			break;
