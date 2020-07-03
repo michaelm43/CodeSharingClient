@@ -627,9 +627,9 @@ public class ControllerEditor {
 					setCaretLine();
 					System.out.println("line = " + line);
 					System.out.println("this.caretLine arfter = " + this.caretLine);
-					this.caretLine = line + (this.caretLine-caret);
+					line = line + (this.caretLine-caret);
 					System.out.println("caret = " + caret);
-					System.out.println("this.caretLine arfter = " + this.caretLine);
+					System.out.println("Line arfter = " + line);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -640,8 +640,9 @@ public class ControllerEditor {
 				new ActionRequest().unlockLines(user, this.proj, 1);
 			//3) lock the new line
 			//TODO lock on file
-			if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) {
+			if(new ActionRequest().lockLines(user, this.proj,line, 1)) {
 				this.originalLine = this.codeArea.getText(line);
+				this.caretLine = line;
 			}
 			else {
 				new ActionRequest().lockLines(user, this.proj, this.caretLine, 1);
