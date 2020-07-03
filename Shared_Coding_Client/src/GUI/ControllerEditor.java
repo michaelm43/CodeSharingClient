@@ -468,6 +468,7 @@ public class ControllerEditor {
 		tempProj.getLinesOfCode().add(prefixLine+1, new Line(postfix,-1));
 		
 		errors = compileProgram(tempProj.toString());
+		System.out.println("in check errors enter = \n" + errors);
 		
 		if(errors == null)
 			return prefix + "\n" + postfix; 
@@ -513,6 +514,7 @@ public class ControllerEditor {
 			
 		tempProj.setText(strLine, str);
 		errors = compileProgram(tempProj.toString());
+		System.out.println("in check errors = \n" + errors);
 		if(errors == null)
 			return str; 
 		else
@@ -530,8 +532,7 @@ public class ControllerEditor {
 		String errors;
 				
 		errors = compileProgram(firstLayerProj.toString()); 
-		System.out.println("in second = " + errors);
-		System.out.println("*********\n" + firstLayerProj.toString());
+		System.out.println("in second = \n" + errors);
 		if (errors == null)
 			return changes;
 		
@@ -644,6 +645,7 @@ public class ControllerEditor {
 		}
 		this.caretCol = col;
 		this.codeArea.moveTo(this.caretLine,this.caretCol);
+		this.beforeChange = this.editCode.getText(this.caretLine);
 	}
 	
 	/*
@@ -681,6 +683,7 @@ public class ControllerEditor {
 				e1.printStackTrace();
 			}
 			isEdited = false;
+			this.beforeChange = this.editCode.getText(this.caretLine);
 		}
 		
 
@@ -703,7 +706,7 @@ public class ControllerEditor {
 				List<Object> tempList;
 				String error;
 				
-				tempList = new ActionRequest().editCodeWithLocks(user, proj, temp, e.getCode().toString());
+				tempList = new ActionRequest().editCodeWithLocks(user, proj, temp, e.getCode().toString(), this.beforeChange);
 				error = (String) tempList.get(0);		//First value is error
 				this.proj = (Project) tempList.get(1);	//Second value is the project
 				this.codeArea.clear();

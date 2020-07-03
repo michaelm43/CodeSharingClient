@@ -269,7 +269,7 @@ public class ActionRequest {
 		return newProj;
 	}
 	
-	public List<Object> editCodeWithLocks(User user, Project proj, String txt, String event) {
+	public List<Object> editCodeWithLocks(User user, Project proj, String txt, String event, String beforeChange) {
 		boolean isRegistered = false;
 		Project newProj = null;
 		String error = "";
@@ -281,6 +281,7 @@ public class ActionRequest {
 			
 			action.getProperties().put("code", txt);
 			action.getProperties().put("event", event);
+			action.getProperties().put("before-change", beforeChange);
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
