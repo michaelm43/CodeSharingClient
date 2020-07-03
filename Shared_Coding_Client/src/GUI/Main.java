@@ -42,7 +42,7 @@ public class Main extends Application{
 		window.setMinWidth(250);
 		
 
-		TextField tfIP = new TextField("10.0.1.18");
+		TextField tfIP = new TextField("172.17.8.161");
 		TextField tfPort = new TextField("8089");
 		
 		

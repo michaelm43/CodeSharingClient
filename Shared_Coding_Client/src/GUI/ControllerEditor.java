@@ -191,7 +191,7 @@ public class ControllerEditor {
 				.subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
 		
 		
-		Subscription saveWhenNoWorking = codeArea
+		/*Subscription saveWhenNoWorking = codeArea
 				// plain changes = ignore style changes that are emitted when syntax
 				// highlighting is reapplied
 				// multi plain changes = save computation by not rerunning the code multiple
@@ -210,7 +210,7 @@ public class ControllerEditor {
 							null, 
 							codeArea.getText(codeArea.getCurrentParagraph()), 
 							KeyCode.S, 
-							false, true, false, false));});
+							false, true, false, false));});*/  //TODO we want this code
 		
 
 		// when no longer need syntax highlighting and wish to clean up memory leaks
@@ -618,6 +618,7 @@ public class ControllerEditor {
 				this.caretLine = line;
 			}
 			else {
+				new ActionRequest().lockLines(user, this.proj, this.caretLine, 1);
 				errorMessage("the line you are trying to reach is locked");
 				col = this.caretCol;
 			}
@@ -696,6 +697,7 @@ public class ControllerEditor {
 				}
 				
 				this.codeArea.moveTo(line,col);
+				this.caretLine = line;
 				getLabelFromString();
 				//2) unlock the last line
 				/*if(this.caretLine < getNumberOfLines())
@@ -715,6 +717,6 @@ public class ControllerEditor {
 		}
 		this.caretCol = col;
 		if(this.caretLine < getNumberOfLines()) // IF THE LINE EXISTS
-			this.beforeChange= this.codeArea.getText(this.caretLine);
+			this.beforeChange = this.codeArea.getText(this.caretLine);
 	}
 }
