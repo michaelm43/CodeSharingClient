@@ -52,5 +52,4 @@ public class Line {
 	public String toStringWithNumbers() {
 		return number + "\t" + code +"\n"; 
 	}
-
 }

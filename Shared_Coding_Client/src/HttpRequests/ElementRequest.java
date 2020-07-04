@@ -13,8 +13,7 @@ import Logic.User;
 
 public class ElementRequest {	
 	
-	public static String IP ;//= "192.168.1.22";
-//	public static String IP = "192.168.1.229";
+	public static String IP ;
 	public static String PORT;
 	
 	private String baseUrl = "http://" + IP + ":" + PORT + "/elements/";
@@ -41,7 +40,6 @@ public class ElementRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(proj); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -93,8 +91,6 @@ public class ElementRequest {
 	 */
 	public Project openExistingFile(User user,String fileName) {
 		Project proj= null;
-		
-		System.out.println("file key = " + fileName);
 		
 		try {
 			URL url = new URL(baseUrl + user.getEmail() + "/" + fileName);

@@ -67,11 +67,8 @@ public class ControllerLogin{
 		}
 		else {
 			user = new UserRequests().loginUser(new User(txtEmail.getText(),txtPassword.getText()));
-			if(user != null) {
-				//ControllerNewFile fileNameController;
-				//fileNameController = 
+			if(user != null) 
 				new ControllerNewFile(this.loginStage, user,null);
-			}
 			else {
 				lblErrorMessage.setText("The user isn't exist");
 				lblErrorMessage.setVisible(true);
@@ -91,6 +88,8 @@ public class ControllerLogin{
 		registerController.showStage();
 	}
 	
+	
+	//--------------------------------------- Validation methods -------------------------------------
 	
 	/* 
 	 * check that the email is from the pattern: email@gmail.com

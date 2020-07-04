@@ -12,8 +12,7 @@ import Logic.User;
 
 public class UserRequests {
 
-	public static String IP ;//= "192.168.1.22";
-//	public static String IP = "192.168.1.229";
+	public static String IP ;
 	public static String PORT ;
 	
 	private String baseUrl = "http://" + IP + ":" + PORT + "/";
@@ -173,7 +172,6 @@ public class UserRequests {
 			
 			//creates a reader buffer
 			if (responseCode >199 && responseCode<300) {
-				//bufferReader = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
 				isUpdated = true;
 			}
 			else {
@@ -181,11 +179,7 @@ public class UserRequests {
 			}
 			
 			//To recive the response
-			StringBuilder content = new StringBuilder();
-			//while((line = bufferReader.readLine()) != null) 
-				//content.append(line).append("\n");
-			//bufferReader.close();
-			
+			StringBuilder content = new StringBuilder();			
 			System.out.println(content.toString());
 		
 		} catch (Exception e) {
@@ -194,8 +188,6 @@ public class UserRequests {
 			System.out.println(e.getClass().getSimpleName());
 			System.out.println(e.getMessage());
 		}
-		
-		
 		
 		return isUpdated;
 	}

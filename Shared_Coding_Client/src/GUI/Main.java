@@ -1,7 +1,6 @@
 package GUI;
 
 import java.io.IOException;
-//import java.net.Socket;
 import java.net.UnknownHostException;
 
 import HttpRequests.ActionRequest;
@@ -26,12 +25,10 @@ public class Main extends Application{
 	}
 
 	/*
-	 * Init the app on Login page..
+	 * Init the app on Connecting to server page..
 	 */
 	@Override
 	public void start(Stage stage) throws UnknownHostException, IOException {
-		
-		//Socket soket = new Socket("10.0.1.26", 8089);
 		connectView();
 	}
 
@@ -42,7 +39,7 @@ public class Main extends Application{
 		window.setMinWidth(250);
 		
 
-		TextField tfIP = new TextField("172.17.8.161");
+		TextField tfIP = new TextField("192.168.1.22");
 		TextField tfPort = new TextField("8089");
 		
 		

@@ -41,7 +41,6 @@ public class Run extends OutputStream implements Runnable {
 			InputStream in = p.getInputStream();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 			p.waitFor();
-			//BufferedReader reader_error = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line = reader.readLine();
 			while (line != null) {
 				System.out.println(line + "\n"); // PRINTS THE OUTPUT TO HERE ****
@@ -49,12 +48,13 @@ public class Run extends OutputStream implements Runnable {
 			}
 			in.close();
 			System.setOut(originConsole);
+			reader.close();
 		} catch (Exception e1) {
 			System.out.println(e1);
 		}
 	}
 
 	public void write(int b) throws IOException {
-		output.appendText(String.valueOf((char) b)); // ****
+		output.appendText(String.valueOf((char) b)); 
 	}
 }

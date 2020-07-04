@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import HttpRequests.ActionRequest;
-import HttpRequests.UserRequests;
 import Logic.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;

@@ -677,9 +677,9 @@ public class ControllerEditor {
 			//int col = this.codeArea.getCaretColumn();
 			try {
 				String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
-				setCaretLine();
 				this.caretCol = codeArea.getCaretColumn();
 				this.proj = new ActionRequest().editCode(user, proj, temp);
+				setCaretLine();
 				this.codeArea.clear();
 				this.codeArea.replaceText(0, 0, this.proj.toString());
 				this.codeArea.moveTo(this.caretLine, this.caretCol);
@@ -726,7 +726,9 @@ public class ControllerEditor {
 					errorMessage(error);
 				}
 				
-				this.codeArea.moveTo(line,col);
+				System.out.println("line = " + line);
+				System.out.println("this.caretLine = " + this.caretLine);
+				this.codeArea.moveTo(this.caretLine,col);
 				//this.caretLine = line;
 				
 				getLabelFromString();

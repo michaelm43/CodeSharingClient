@@ -3,7 +3,6 @@ package GUI;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import HttpRequests.ActionRequest;
 import HttpRequests.ElementRequest;
 import HttpRequests.UserRequests;
 import Logic.*;
@@ -98,6 +97,8 @@ public class ControllerNewFile {
 			openfileController.showStage();
 		}
 	}
+	
+	//--------------------------------------- Validation methods -------------------------------------
 	
 	public boolean checkFileName(String name) {
 		String pswRegex = "^[\\w]+$";

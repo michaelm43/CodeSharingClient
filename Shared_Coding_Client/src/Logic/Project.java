@@ -14,21 +14,13 @@ public class Project {
 	private List<String> users;
 	private List<ActiveUser> activeUsers;
 	private List<Line> linesOfCode;
-	//TODO do we need lastEdited
-	
-	//to check how many lines were changed
-	private int lockednumber = 0;
 	
 	public List<Line> initCode = new LinkedList<>(List.of(	
 			new Line("public class ", 1), 
 			new Line("{",2),
 			new Line("public static void main(String[] args)",3),
 			new Line("{",4),
-			new Line("System.out.println(100);", 5),
-//			new Line("",6),
-//			new Line("",7),
-//			new Line("",8),
-//			new Line("",9),
+			new Line("System.out.println(\"Hello world\");", 5),
 			new Line("}",6),
 			new Line("}",7)
 			)); 
@@ -57,14 +49,12 @@ public class Project {
 		this.creator = proj.getCreator();
 		
 		this.linesOfCode = new LinkedList<>();
-		//this.linesOfCode.addAll(proj.getLinesOfCode());
 		ListIterator<Line> itr = proj.linesOfCode.listIterator();
 		while(itr.hasNext()) {
 			this.linesOfCode.add(new Line(itr.next()));
 		}
 		
 		
-		//this.linesOfCode = proj.getLinesOfCode();
 		this.users = proj.getUsers();
 		this.activeUsers = proj.getActiveUsers();
 		
@@ -174,34 +164,15 @@ public class Project {
 			return caretLine+2;
 		else 
 			return this.numberOfLines-1;
-
 	}
 	
 	public boolean Lock(int caretLine, User user) {
 		int start = get2LinesUpFromCaret(caretLine);
 		int end = get2LinesDownFromCaret(caretLine);
-		
-		
-		/*
-		if(this.linesOfCode.get(start).isLocked() || this.linesOfCode.get(end).isLocked()) {
-			return false;
-		}
-		else 
-			for(int i = start; i <= end; i++) {
-				this.linesOfCode.get(i).setLocked(true);
-				this.lockednumber++;
-			}*/
 		return new ActionRequest().lockLines(user, this, start, end-start+1);
-
 	}
 	
-	public boolean unLock(User user,int length) {
-		
-		/*for(int i=start; i <= end ; i++) {
-			this.linesOfCode.get(i).setLocked(false);
-			this.lockednumber--;
-		}*/
-		
+	public boolean unLock(User user,int length) {		
 		return new ActionRequest().unlockLines(user, this, length);
 	}
 

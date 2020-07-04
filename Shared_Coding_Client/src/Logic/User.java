@@ -62,9 +62,7 @@ public class User {
 	public String toString() {
 		return "[u-" + email + ",p-" + password +"]";
 	}
-	
-	//check comit
-	
+		
 	/* 
 	 * check that the email is from the pattern: email@gmail.com
 	 */

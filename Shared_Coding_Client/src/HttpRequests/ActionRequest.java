@@ -6,14 +6,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import Logic.Action;
 import Logic.Project;
@@ -21,9 +18,8 @@ import Logic.User;
 
 public class ActionRequest {
 	
-	public static String IP = "";//= "192.168.1.22";
-//	public static String IP = "192.168.1.229";
-	public static String PORT = ""; //"8089";
+	public static String IP = "";
+	public static String PORT = "";
 	
 	private static String baseUrl = "http://";
 	
@@ -43,7 +39,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -89,7 +84,6 @@ public class ActionRequest {
 	}
 	
 	public boolean lockLines(User user, Project proj, int start, int count) {
-		System.out.println("url = " +  baseUrl);
 		boolean isRegistered = false;
 		try {
 			
@@ -102,7 +96,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -148,7 +141,6 @@ public class ActionRequest {
 	}
 
 	public boolean unlockLines(User user, Project proj, int length) {
-		System.out.println("ip = " + IP + "post = " + PORT);
 		boolean isRegistered = false;
 		try {
 			
@@ -160,7 +152,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -206,7 +197,6 @@ public class ActionRequest {
 	}
 	
 	public Project editCode(User user, Project proj, String txt) {
-		System.out.println("ip = " + IP + "post = " + PORT);
 		boolean isRegistered = false;
 		Project newProj = null;
 		try {
@@ -216,11 +206,9 @@ public class ActionRequest {
 			Action action = new Action("edit-code-save", proj.getCreator(), proj.getName(), user.getEmail());
 			
 			action.getProperties().put("code", txt);
-			//action.getProperties().put("event", event);
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -285,7 +273,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -320,13 +307,11 @@ public class ActionRequest {
 			
 			if(isRegistered) {
 				newProj = gson.fromJson(content.toString(), Project.class);
-				//ErrorClass error = gson.fromJson(content.toString(), ErrorClass.class);
 				
 				JsonObject jsonObject = gson.fromJson(content.toString(), JsonObject.class);
 
 		        JsonElement jsonError = jsonObject.get("error");
 		        error = jsonError.getAsString(); // check
-		        System.out.println("type = " + error);
 			}
 			
 			System.out.println(content.toString());
@@ -354,7 +339,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -409,7 +393,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -464,7 +447,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-		    System.out.println(json);
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -510,7 +492,6 @@ public class ActionRequest {
 	}
 	
 	public boolean connect(String ip, String port) {
-		
 		try {
 			URL url = new URL(baseUrl +  ip + ":" + port + "/" + "actions");
 			
@@ -518,8 +499,6 @@ public class ActionRequest {
 			
 			Gson gson = new Gson();	
 		    String json = gson.toJson(action); 
-
-		    System.out.println("before httpConnection");
 						
 			///URL and parameters for the connection.
 			HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
@@ -533,7 +512,7 @@ public class ActionRequest {
 			httpConnection.getResponseCode();
 		
 			
-			//creates a reader buffer
+			//update ip and port as static values
 			ActionRequest.IP = ip;
 			ActionRequest.PORT = port;
 			ActionRequest.baseUrl = baseUrl + IP + ":" + PORT + "/";
@@ -545,28 +524,5 @@ public class ActionRequest {
 			return false;
 		}
 		return true;	
-	}
-
-	
-}
-
-class ErrorClass {
-	private String error;
-	
-	public ErrorClass() {
-		super();
-	}
-	
-	public ErrorClass(String error) {
-		super();
-		this.error = error;
-	}
-	
-	public void setError(String error) {
-		this.error = error;
-	}
-	
-	public String getError() {
-		return error;
 	}
 }
