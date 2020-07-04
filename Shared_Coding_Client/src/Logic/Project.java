@@ -24,7 +24,6 @@ public class Project {
 			new Line("}",6),
 			new Line("}",7)
 			)); 
-		
 	
 	public Project(String name, String creator) {
 		super();

@@ -35,12 +35,6 @@ public class ControllerLogin{
 
             // Setup the window/stage
             loginStage.setTitle("Login");
-
-            //TODO delete this lines 
-            {
-            	txtEmail.setText("m@g.com");
-            	txtPassword.setText("michael123");
-            }
             
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,50 +1,37 @@
 package GUI;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 import Logic.*;
 import javafx.application.Platform;
 import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import Compile.*;
 import Compile.Compiler;
 import HttpRequests.ActionRequest;
+import HttpRequests.ElementRequest;
+import HttpRequests.UserRequests;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -79,15 +66,6 @@ public class ControllerEditor {
 					+ ")" + "|(?<BRACKET>" + BRACKET_PATTERN + ")" + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
 					+ "|(?<STRING>" + STRING_PATTERN + ")" + "|(?<COMMENT>" + COMMENT_PATTERN + ")");
 
-	private static final String sampleCode = String.join("\n",
-			new String[] { "package com.example;", "", "import java.util.*;", "",
-					"public class Foo extends Bar implements Baz {", "", "    /*", "     * multi-line comment",
-					"     */", "    public static void main(String[] args) {", "        // single-line comment",
-					"        for(String arg: args) {", "            if(arg.length() != 0)",
-					"                System.out.println(arg);", "            else",
-					"                System.err.println(\"Warning: empty string as argument\");", "        }", "    }",
-					"", "}" });
-
 	private final Stage editorStage;
 
 	private User user;
@@ -95,7 +73,6 @@ public class ControllerEditor {
 
 	private CodeArea codeArea;
 	private CodeArea editCode;
-	private Button btnSend;
 
 	@FXML
 	private TextArea txtConsole;
@@ -111,7 +88,6 @@ public class ControllerEditor {
 	private boolean isDeleted = false;
 	
 	private boolean isEdited = false;
-	private String originalLine;
 	private String beforeChange;
 	private int caretCol;
 	
@@ -142,10 +118,9 @@ public class ControllerEditor {
 			editorStage.setScene(new Scene(loader.load()));
 
 			editorStage.setMaximized(true);
-//			editorStage.initModality(Modality.APPLICATION_MODAL);
 
 			// Setup the window/stage
-			editorStage.setTitle(this.proj.getName().concat("-").concat(this.proj.getCreator()));
+			editorStage.setTitle(this.proj.getCreator().concat("-").concat(this.proj.getName()));
 
 			initCodeArea();
 			borderPane.setCenter(new VirtualizedScrollPane<>(codeArea));
@@ -159,7 +134,6 @@ public class ControllerEditor {
 			try {
 				popUpMessage(EXIT_TITLE, EXIT_MESSAGE);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
@@ -191,7 +165,7 @@ public class ControllerEditor {
 				.subscribe(ignore -> codeArea.setStyleSpans(0, computeHighlighting(codeArea.getText())));
 		
 		
-		/*Subscription saveWhenNoWorking = codeArea
+		Subscription saveWhenNoWorking = codeArea
 				// plain changes = ignore style changes that are emitted when syntax
 				// highlighting is reapplied
 				// multi plain changes = save computation by not rerunning the code multiple
@@ -199,18 +173,23 @@ public class ControllerEditor {
 				// when making multiple changes (e.g. renaming a method at multiple parts in
 				// file)
 				.multiPlainChanges()
-				// do not emit an event until 500 ms have passed since the last emission of
+				// do not emit an event until 100000 ms have passed since the last emission of
 				// previous stream
 				.successionEnds(Duration.ofMillis(100000))
 				// run the following code block when previous stream emits an event
 				.subscribe(fireEvent -> {
-					if(this.caretLine >= 0)
+					if(this.caretLine == -1) {
+						this.proj = new ElementRequest().openExistingFile(this.user,this.proj.getKey());
+						this.codeArea.clear();
+						this.codeArea.replaceText(0, 0, this.proj.toString());
+					}
+					else
 						Event.fireEvent(codeArea, new KeyEvent(
 							KeyEvent.KEY_PRESSED, 
 							null, 
 							codeArea.getText(codeArea.getCurrentParagraph()), 
 							KeyCode.S, 
-							false, true, false, false));});*/  //TODO we want this code
+							false, true, false, false));});
 		
 
 		// when no longer need syntax highlighting and wish to clean up memory leaks
@@ -229,19 +208,8 @@ public class ControllerEditor {
 		});
 
 		codeArea.replaceText(0, 0, proj.toString());
-		
 		getLabelFromString();
-		//lock for the first time
-		//TODO fix few users on same line
-		//new ActionRequest().lockLines(user, this.proj, this.caretLine, 0);
-		//codeArea.moveTo(proj.toString().length()-1);
-		//TODO CHANGE
-		//codeArea.setEditable(false);
-		
-		//TODO CHANGE
 		codeArea.setOnMouseClicked(e -> mouseClicked());
-		
-		//TODO fix all of that in a method!
 		codeArea.setOnKeyPressed(e -> keyPressed(e));
 	}
 	
@@ -328,8 +296,7 @@ public class ControllerEditor {
 			this.codeArea.replaceText(0, 0, this.proj.toString());
 			getLabelFromString();
 			this.proj.unLock(this.user,editCode.getText().split("\n").length);
-		}
-		// fix conflicts	
+		}	
 	}
 
 	@FXML
@@ -402,6 +369,8 @@ public class ControllerEditor {
 
 	@FXML
 	public void openFile() throws IOException {
+		this.user = new UserRequests().loginUser(user);
+			
 		new ControllerOpenFile(user, this.editorStage, null).showStage();
 		if(this.caretLine >= 0)	{//means no lock yet happened
 			if(this.isEdited)
@@ -468,7 +437,6 @@ public class ControllerEditor {
 		tempProj.getLinesOfCode().add(prefixLine+1, new Line(postfix,-1));
 		
 		errors = compileProgram(tempProj.toString());
-		System.out.println("in check errors enter = \n" + errors);
 		
 		if(errors == null)
 			return prefix + "\n" + postfix; 
@@ -479,17 +447,13 @@ public class ControllerEditor {
 	public String checkErrorsDelete(String prefix, String postfix, int strLine,String restoreStr,boolean isDeleted) throws IOException {
 		Project tempProj = new Project(this.proj);
 		String errors;
+		txtConsole.clear();	
 			
 		tempProj.setText(strLine, prefix);
 		errors = compileProgram(tempProj.toString());
 		if(errors == null)
 			return prefix + postfix; 
-		else
-			txtConsole.setText(errors);
-		
-		//String check = checkIfBracketsError(errors,isDeleted);
-		//if(check != null)
-			//return str + "\n" + check;
+		txtConsole.setText(errors);
 		
 		tempProj.setText(strLine,"//" + prefix + postfix);
 		tempProj.removeLine(strLine+1);
@@ -503,7 +467,6 @@ public class ControllerEditor {
 	public void errorMessage(String msg) {
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setTitle("Warning Dialog");
-		//alert.setHeaderText("Could not connect to Server!");
 		alert.setContentText(msg);
 		alert.showAndWait();
 	}
@@ -511,19 +474,14 @@ public class ControllerEditor {
 	public String checkErrors(String str, int strLine,String restoreStr,boolean isDeleted) throws IOException {
 		Project tempProj = new Project(this.proj);
 		String errors;
-			
+		txtConsole.clear();	
+		
 		tempProj.setText(strLine, str);
 		errors = compileProgram(tempProj.toString());
-		System.out.println("in check errors = \n" + errors);
 		if(errors == null)
 			return str; 
-		else
-			txtConsole.setText(errors);
-		
-		//String check = checkIfBracketsError(errors,isDeleted);
-		//if(check != null)
-			//return str + "\n" + check;
-		
+		txtConsole.setText(errors);
+		txtConsole.setVisible(true);
 		tempProj.setText(strLine,"//" + str);
 		return checkSecondLayerError(tempProj, strLine, "//" + str, restoreStr);
 	}
@@ -532,23 +490,11 @@ public class ControllerEditor {
 		String errors;
 				
 		errors = compileProgram(firstLayerProj.toString()); 
-		System.out.println("in second = \n" + errors);
 		if (errors == null)
 			return changes;
 		
 		changes = restoreStr + "\t // 2nd Layer Compilation ERROR, revert!";		
 		return changes;
-	}
-	
-	public String checkIfBracketsError(String errors, boolean isDeleted){
-		System.out.println("errors = \n" + errors);
-		String[] errorArr = errors.split("\n");
-		System.out.println("check boolean = " + errorArr[0].contains("reached end of file while parsing"));
-		System.out.println("the error is = " + errorArr[1].trim());
-		if(errorArr[0].contains("reached end of file while parsing"))
-			return errorArr[1].trim();
-		
-		return null;
 	}
 	
 	public String checkTheLine(int strLine, KeyCode key) throws IOException {
@@ -569,16 +515,13 @@ public class ControllerEditor {
 			}
 			else {
 				//middle of the line or empty line
-				return checkErrorsEnter(prefix, postfix, this.caretLine); // TODO CHECK { }
+				return checkErrorsEnter(prefix, postfix, this.caretLine); 
 			}			
-			//TODO check if needed line = ""
 		}
 		case BACK_SPACE:{
-			//TODO check beginning of file
 			String prefix;
 			String postfix;
 			if(strLine < getNumberOfLines()) 
-				//change
 				str = codeArea.getText(codeArea.getCurrentParagraph());
 			else
 				str = codeArea.getText(codeArea.getCurrentParagraph()-1);
@@ -611,7 +554,6 @@ public class ControllerEditor {
 	 */
 	public void mouseClicked() {
 		int col = codeArea.getCaretColumn();
-		System.out.println("Line = " + codeArea.getCurrentParagraph() + ", caretLine = " + this.caretLine);
 		if(codeArea.getCurrentParagraph() != this.caretLine) {
 			int line = codeArea.getCurrentParagraph();
 			if(this.caretLine>=0) {
@@ -619,19 +561,13 @@ public class ControllerEditor {
 				try {
 					temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
 					this.proj = new ActionRequest().editCode(user, proj, temp);
-					//TODO fix caret jump to the end of line
 					this.codeArea.clear();
 					this.codeArea.replaceText(0, 0, this.proj.toString());
 					getLabelFromString();
 					int caret = this.caretLine;
 					setCaretLine();
-					System.out.println("line = " + line);
-					System.out.println("this.caretLine arfter = " + this.caretLine);
 					line = line + (this.caretLine-caret);
-					System.out.println("caret = " + caret);
-					System.out.println("Line arfter = " + line);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -639,11 +575,8 @@ public class ControllerEditor {
 			if(this.caretLine >= 0)	//means no lock yet happened
 				new ActionRequest().unlockLines(user, this.proj, 1);
 			//3) lock the new line
-			//TODO lock on file
-			if(new ActionRequest().lockLines(user, this.proj,line, 1)) {
-				this.originalLine = this.codeArea.getText(line);
+			if(new ActionRequest().lockLines(user, this.proj,line, 1)) 
 				this.caretLine = line;
-			}
 			else {
 				new ActionRequest().lockLines(user, this.proj, this.caretLine, 1);
 				errorMessage("the line you are trying to reach is locked");
@@ -664,17 +597,14 @@ public class ControllerEditor {
 	public void keyPressed(KeyEvent e) {
 		int col = this.codeArea.getCaretColumn();
 		
-		//char ch = e.getText().charAt(0);
 		if(e.getText().length() > 0)
 			col++;
 		isEdited = true;
-		//TODO add flag for change!
 		/*
 		 * if user saved the file (ctrl + s)
 		 * 1) update the current line
 		 */
 		if(e.getCode() == KeyCode.S && e.isControlDown()) {
-			//int col = this.codeArea.getCaretColumn();
 			try {
 				String temp = checkErrors(this.codeArea.getText(this.caretLine), this.caretLine,this.proj.getLinesOfCode().get(this.caretLine).getCode(),false);
 				this.caretCol = codeArea.getCaretColumn();
@@ -684,9 +614,7 @@ public class ControllerEditor {
 				this.codeArea.replaceText(0, 0, this.proj.toString());
 				this.codeArea.moveTo(this.caretLine, this.caretCol);
 				getLabelFromString();
-				//TODO lock!
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			isEdited = false;
@@ -696,17 +624,13 @@ public class ControllerEditor {
 
 		/*
 		 * if the line number was changed 
-		 * 1) need to update the db		TODO
-		 * 2) unlock the last line		TODO
-		 * 3) lock the new line and wait for another update		TODO 
+		 * 1) need to update the db		
+		 * 2) unlock the last line		
+		 * 3) lock the new line and wait for another update		
 		 */
 		else if(codeArea.getCurrentParagraph() != this.caretLine 
 				|| getNumberOfLines() < proj.getLinesOfCode().size()){	//the line was changed
-			//System.out.println(checkTheLine(this.codeArea.getText(this.caretLine), e.getCode()));
-			//TODO check compilation
 			String temp;
-			//int col = this.codeArea.getCaretColumn();
-			int line = this.codeArea.getCurrentParagraph();
 			try {
 				temp = checkTheLine(this.caretLine, e.getCode());
 				
@@ -721,28 +645,14 @@ public class ControllerEditor {
 				setCaretLine();
 				
 				if(!error.equals("")) {
-					line = this.caretLine;
 					col = this.caretCol;
 					errorMessage(error);
 				}
 				
-				System.out.println("line = " + line);
-				System.out.println("this.caretLine = " + this.caretLine);
 				this.codeArea.moveTo(this.caretLine,col);
-				//this.caretLine = line;
 				
 				getLabelFromString();
-				//2) unlock the last line
-				/*if(this.caretLine < getNumberOfLines())
-					new ActionRequest().unlockLines(user, this.proj, 1);
-				//3) lock the new line
-				this.caretLine = line;
-				//this.caretCol = col;
-				//TODO lock on file
-				if(this.caretLine == getNumberOfLines()) 
-					this.caretLine--;
-				if(new ActionRequest().lockLines(user, this.proj, this.caretLine, 1)) 
-					this.originalLine = this.codeArea.getText(this.caretLine);*/ //TODO check
+
 			} catch (IOException err) {
 				err.printStackTrace();
 			}
